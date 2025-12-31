@@ -95,7 +95,7 @@
                       @case ('DEPOT') { Dépôt }
                       @case ('RETRAIT') { Retrait }
                       @case ('VIREMENT') { 
-                        @if (transaction.compteSource === numeroCompte()) {
+                        @if (transaction.numeroCompte === numeroCompte()) {
                           Virement envoyé
                         } @else {
                           Virement reçu
@@ -110,15 +110,15 @@
                 <div class="txn-meta">
                   <span class="txn-date">
                     <i class="fas fa-clock"></i>
-                    {{ formatDate(transaction.date) }}
+                    {{ formatDate(transaction.dateTransaction) }}
                   </span>
                   @if (transaction.type === 'VIREMENT') {
                     <span class="txn-account">
                       <i class="fas fa-credit-card"></i>
-                      @if (transaction.compteSource === numeroCompte()) {
+                      @if (transaction.numeroCompte === numeroCompte()) {
                         Vers: {{ transaction.compteDestination }}
                       } @else {
-                        De: {{ transaction.compteSource }}
+                        De: {{ transaction.numeroCompte }}
                       }
                     </span>
                   }

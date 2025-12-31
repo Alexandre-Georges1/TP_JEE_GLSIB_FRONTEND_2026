@@ -8,10 +8,6 @@
       <p class="subtitle">Consultez et filtrez toutes les opérations bancaires</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" (click)="exportToCSV()" [disabled]="filteredTransactions.length === 0">
-        <i class="fas fa-download"></i>
-        Exporter CSV
-      </button>
       <a routerLink="/transactions/new" class="btn btn-primary">
         <i class="fas fa-plus"></i>
         Nouvelle Transaction
@@ -109,7 +105,7 @@
     @if (filteredTransactions.length > 0) {
       <div class="transactions-list">
         @for (txn of filteredTransactions; track txn.id) {
-          <div class="transaction-card" [class.depot]="txn.type === 'DEPOT'" [class.retrait]="txn.type === 'RETRAIT'" [class.virement]="txn.type === 'VIREMENT'">
+          <div class="transaction-card" [class.depot]="txn.type === 'DEPOT'" [class.retrait]="txn.type === 'RETRAIT'" [class.virement]="txn.type === 'VIREMENT' || txn.type === 'TRANSFERT'">
             <div class="txn-icon">
               <i class="fas" [class]="getTransactionIcon(txn.type)"></i>
             </div>
@@ -117,21 +113,17 @@
             <div class="txn-main">
               <div class="txn-header">
                 <span class="txn-type">{{ txn.type }}</span>
-                <span class="txn-id">{{ txn.id }}</span>
+                <span class="txn-id">#{{ txn.id }}</span>
               </div>
-              <p class="txn-description">{{ txn.description }}</p>
+              <p class="txn-description">Solde: {{ txn.montantAvant | number:'1.2-2' }} € → {{ txn.montantApres | number:'1.2-2' }} €</p>
               <div class="txn-meta">
                 <span class="txn-date">
                   <i class="fas fa-clock"></i>
-                  {{ txn.date | date:'dd/MM/yyyy à HH:mm' }}
+                  {{ txn.dateTransaction | date:'dd/MM/yyyy à HH:mm' }}
                 </span>
                 <span class="txn-compte">
                   <i class="fas fa-credit-card"></i>
                   {{ txn.numeroCompte }}
-                  @if (txn.compteDestination) {
-                    <i class="fas fa-arrow-right"></i>
-                    {{ txn.compteDestination }}
-                  }
                 </span>
               </div>
             </div>
@@ -141,7 +133,7 @@
                 {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €
               </span>
               <span class="txn-solde">
-                Solde: {{ txn.soldeApres | number:'1.2-2' }} €
+                Solde: {{ txn.montantApres | number:'1.2-2' }} €
               </span>
             </div>
           </div>

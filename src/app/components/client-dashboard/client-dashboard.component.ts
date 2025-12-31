@@ -51,7 +51,7 @@ export class ClientDashboardComponent implements OnInit {
             // Trier par date décroissante et prendre les 10 dernières
             this.transactions.set(
               clientTransactions
-                .sort((a: Transaction, b: Transaction) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .sort((a: Transaction, b: Transaction) => new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime())
                 .slice(0, 10)
             );
           });

@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, map, combineLatest } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, map, combineLatest, tap, catchError, of } from 'rxjs';
 import { Compte, CompteFormData, TypeCompte } from '../models/compte.model';
 import { ClientService } from './client.service';
 
@@ -11,11 +12,26 @@ export class CompteService {
   private comptes$ = new BehaviorSubject<Compte[]>([]);
   private storageKey = 'egabank_comptes';
   private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8081/comptes';
 
   constructor(private clientService: ClientService) {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage();
+      this.loadComptes();
     }
+  }
+
+  private loadComptes(): void {
+    this.http.get<Compte[]>(this.apiUrl).pipe(
+      catchError(() => {
+        this.loadFromStorage();
+        return of([]);
+      })
+    ).subscribe(comptes => {
+      if (comptes.length > 0) {
+        this.comptes$.next(comptes);
+      }
+    });
   }
 
   private loadFromStorage(): void {
@@ -23,10 +39,7 @@ export class CompteService {
     
     const stored = localStorage.getItem(this.storageKey);
     if (stored) {
-      const comptes = JSON.parse(stored).map((c: any) => ({
-        ...c,
-        dateCreation: new Date(c.dateCreation)
-      }));
+      const comptes = JSON.parse(stored);
       this.comptes$.next(comptes);
     }
   }
@@ -36,7 +49,7 @@ export class CompteService {
     localStorage.setItem(this.storageKey, JSON.stringify(this.comptes$.value));
   }
 
-  private generateNumeroCompte(type: TypeCompte): string {
+  private generateNumeroCompte(type: string): string {
     const prefix = type === 'EPARGNE' ? 'EP' : 'CC';
     const numero = Date.now().toString().slice(-8);
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -47,11 +60,11 @@ export class CompteService {
     return combineLatest([this.comptes$, this.clientService.getClients()]).pipe(
       map(([comptes, clients]) => {
         return comptes.map(compte => {
-          const client = clients.find(c => c.id === compte.clientId);
+          const client = compte.client ? clients.find(c => c.id === compte.client!.id) : null;
           return {
             ...compte,
-            clientNom: client?.nom,
-            clientPrenom: client?.prenom
+            clientNom: client?.nom || compte.client?.nom,
+            clientPrenom: client?.prenom || compte.client?.prenom
           };
         });
       })
@@ -60,7 +73,7 @@ export class CompteService {
 
   getComptesByClient(clientId: string): Observable<Compte[]> {
     return this.comptes$.pipe(
-      map(comptes => comptes.filter(c => c.clientId === clientId))
+      map(comptes => comptes.filter(c => c.client?.id === parseInt(clientId, 10)))
     );
   }
 
@@ -69,11 +82,11 @@ export class CompteService {
       map(([comptes, clients]) => {
         const compte = comptes.find(c => c.numeroCompte === numero);
         if (compte) {
-          const client = clients.find(c => c.id === compte.clientId);
+          const client = compte.client ? clients.find(c => c.id === compte.client!.id) : null;
           return {
             ...compte,
-            clientNom: client?.nom,
-            clientPrenom: client?.prenom
+            clientNom: client?.nom || compte.client?.nom,
+            clientPrenom: client?.prenom || compte.client?.prenom
           };
         }
         return undefined;
@@ -81,31 +94,59 @@ export class CompteService {
     );
   }
 
-  createCompte(data: CompteFormData): Compte {
-    const newCompte: Compte = {
+  createCompte(data: CompteFormData): Observable<Compte> {
+    const compteData = {
       numeroCompte: this.generateNumeroCompte(data.typeCompte),
-      typeCompte: data.typeCompte,
       dateCreation: new Date(),
-      solde: data.soldeInitial,
-      clientId: data.clientId
+      typeCompte: data.typeCompte,
+      solde: data.solde,
+      client: data.client
     };
 
-    const current = this.comptes$.value;
-    this.comptes$.next([...current, newCompte]);
-    this.saveToStorage();
-    return newCompte;
+    return this.http.post<Compte>(this.apiUrl, compteData).pipe(
+      tap(compte => {
+        const current = this.comptes$.value;
+        this.comptes$.next([...current, compte]);
+        this.saveToStorage();
+      }),
+      catchError(error => {
+        console.error('Erreur lors de la création du compte:', error);
+        throw error;
+      })
+    );
   }
 
-  updateSolde(numeroCompte: string, nouveauSolde: number): boolean {
+  updateSolde(numeroCompte: string, nouveauSolde: number): Observable<boolean> {
     const current = this.comptes$.value;
-    const index = current.findIndex(c => c.numeroCompte === numeroCompte);
+    const compte = current.find(c => c.numeroCompte === numeroCompte);
     
-    if (index === -1) return false;
+    if (!compte || !compte.id) return of(false);
 
-    current[index] = { ...current[index], solde: nouveauSolde };
-    this.comptes$.next([...current]);
-    this.saveToStorage();
-    return true;
+    const updatedCompte = { ...compte, solde: nouveauSolde };
+    
+    return this.http.put<Compte>(`${this.apiUrl}/${compte.id}`, updatedCompte).pipe(
+      tap(updated => {
+        const index = current.findIndex(c => c.numeroCompte === numeroCompte);
+        if (index !== -1) {
+          current[index] = updated;
+          this.comptes$.next([...current]);
+          this.saveToStorage();
+        }
+      }),
+      map(() => true),
+      catchError(error => {
+        console.error('Erreur lors de la mise à jour du solde:', error);
+        // Fallback local
+        const index = current.findIndex(c => c.numeroCompte === numeroCompte);
+        if (index !== -1) {
+          current[index] = { ...current[index], solde: nouveauSolde };
+          this.comptes$.next([...current]);
+          this.saveToStorage();
+          return of(true);
+        }
+        return of(false);
+      })
+    );
   }
 
   deleteCompte(numeroCompte: string): boolean {
@@ -121,7 +162,17 @@ export class CompteService {
 
   deleteComptesByClient(clientId: string): void {
     const current = this.comptes$.value;
-    const filtered = current.filter(c => c.clientId !== clientId);
+    const comptesToDelete = current.filter(c => c.client?.id === parseInt(clientId, 10));
+    
+    comptesToDelete.forEach(compte => {
+      if (compte.id) {
+        this.http.delete(`${this.apiUrl}/${compte.id}`).subscribe({
+          error: (error) => console.error('Erreur lors de la suppression:', error)
+        });
+      }
+    });
+    
+    const filtered = current.filter(c => c.client?.id !== parseInt(clientId, 10));
     this.comptes$.next(filtered);
     this.saveToStorage();
   }

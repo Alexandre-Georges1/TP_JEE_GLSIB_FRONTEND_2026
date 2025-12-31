@@ -17,9 +17,6 @@ export class AuthService {
   // Code admin prédéfini
   private readonly ADMIN_CODE = 'EGABANK2024';
   
-  // Mot de passe par défaut pour les clients (en production, ce serait dans une base de données)
-  private readonly DEFAULT_CLIENT_PASSWORD = '1234';
-
   constructor(
     private router: Router,
     private compteService: CompteService,
@@ -81,13 +78,17 @@ export class AuthService {
     }
 
     // Récupérer les infos du client
-    const client = await firstValueFrom(this.clientService.getClientById(compte.clientId));
+    const clientId = compte.client?.id;
+    if (!clientId) {
+      return { success: false, message: 'Client introuvable pour ce compte' };
+    }
+    const client = await firstValueFrom(this.clientService.getClientById(clientId));
 
     const user: User = {
-      id: compte.clientId,
+      id: String(clientId),
       type: 'CLIENT',
       numeroCompte: compte.numeroCompte,
-      clientId: compte.clientId,
+      clientId: String(clientId),
       nom: client?.nom || compte.clientNom,
       prenom: client?.prenom || compte.clientPrenom
     };

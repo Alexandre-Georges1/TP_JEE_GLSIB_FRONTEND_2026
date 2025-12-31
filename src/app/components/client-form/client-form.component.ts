@@ -15,7 +15,7 @@ import { Client } from '../../models/client.model';
 export class ClientFormComponent implements OnInit {
   clientForm!: FormGroup;
   isEditMode = false;
-  clientId: string | null = null;
+  clientId: number | null = null;
   loading = false;
   submitError = '';
 
@@ -36,8 +36,9 @@ export class ClientFormComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     
-    this.clientId = this.route.snapshot.paramMap.get('id');
-    if (this.clientId && this.clientId !== 'new') {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam && idParam !== 'new') {
+      this.clientId = parseInt(idParam, 10);
       this.isEditMode = true;
       this.loadClient();
     }
@@ -47,11 +48,11 @@ export class ClientFormComponent implements OnInit {
     this.clientForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
-      dateNaissance: ['', [Validators.required]],
+      dnaissance: ['', [Validators.required]],
       sexe: ['M', [Validators.required]],
       adresse: ['', [Validators.required, Validators.minLength(5)]],
-      telephone: ['', [Validators.required, Validators.pattern(/^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/)]],
-      email: ['', [Validators.required, Validators.email]],
+      tel: ['', [Validators.required, Validators.pattern(/^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/)]],
+      courriel: ['', [Validators.required, Validators.email]],
       nationalite: ['', [Validators.required]]
     });
   }
@@ -61,15 +62,17 @@ export class ClientFormComponent implements OnInit {
 
     this.clientService.getClientById(this.clientId).subscribe(client => {
       if (client) {
-        const dateStr = new Date(client.dateNaissance).toISOString().split('T')[0];
+        const dateStr = typeof client.dnaissance === 'string' 
+          ? client.dnaissance 
+          : client.dnaissance;
         this.clientForm.patchValue({
           nom: client.nom,
           prenom: client.prenom,
-          dateNaissance: dateStr,
+          dnaissance: dateStr,
           sexe: client.sexe,
           adresse: client.adresse,
-          telephone: client.telephone,
-          email: client.email,
+          tel: client.tel,
+          courriel: client.courriel,
           nationalite: client.nationalite
         });
       } else {
@@ -87,16 +90,28 @@ export class ClientFormComponent implements OnInit {
     this.loading = true;
     this.submitError = '';
 
-    try {
-      if (this.isEditMode && this.clientId) {
-        this.clientService.updateClient(this.clientId, this.clientForm.value);
-      } else {
-        this.clientService.createClient(this.clientForm.value);
-      }
-      this.router.navigate(['/clients']);
-    } catch (error) {
-      this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
-      this.loading = false;
+    if (this.isEditMode && this.clientId) {
+      this.clientService.updateClient(this.clientId, this.clientForm.value).subscribe({
+        next: () => {
+          this.router.navigate(['/clients']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la mise à jour:', error);
+          this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
+          this.loading = false;
+        }
+      });
+    } else {
+      this.clientService.createClient(this.clientForm.value).subscribe({
+        next: () => {
+          this.router.navigate(['/clients']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création:', error);
+          this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
+          this.loading = false;
+        }
+      });
     }
   }
 

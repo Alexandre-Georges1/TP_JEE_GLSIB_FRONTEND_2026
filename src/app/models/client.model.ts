@@ -1,23 +1,26 @@
 export interface Client {
-  id: string;
+  id: number;
   nom: string;
   prenom: string;
-  dateNaissance: Date;
-  sexe: 'M' | 'F';
+  dnaissance: Date;
+  sexe: string;
   adresse: string;
-  telephone: string;
-  email: string;
+
+  clientId?: number;   
+  client?: Client;
+
+  tel: string;
+  courriel: string;
   nationalite: string;
-  dateCreation: Date;
 }
 
 export interface ClientFormData {
   nom: string;
   prenom: string;
-  dateNaissance: string;
-  sexe: 'M' | 'F';
+  dnaissance: Date;
+  sexe: string;
   adresse: string;
-  telephone: string;
-  email: string;
+  tel: string;
+  courriel: string;
   nationalite: string;
 }

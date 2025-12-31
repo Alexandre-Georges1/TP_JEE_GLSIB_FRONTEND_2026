@@ -98,22 +98,22 @@
           <h3><i class="fas fa-credit-card"></i> Compte {{ isVirement ? 'Source' : '' }}</h3>
           
           <div class="form-group">
-            <label for="numeroCompte">Sélectionner un compte *</label>
+            <label for="compteId">Sélectionner un compte *</label>
             <select 
-              id="numeroCompte" 
-              formControlName="numeroCompte"
+              id="compteId" 
+              formControlName="compteId"
               (change)="onCompteChange()"
-              [class.invalid]="isFieldInvalid('numeroCompte')"
+              [class.invalid]="isFieldInvalid('compteId')"
             >
-              <option value="">Choisissez un compte</option>
-              @for (compte of comptes; track compte.numeroCompte) {
-                <option [value]="compte.numeroCompte">
+              <option [ngValue]="null">Choisissez un compte</option>
+              @for (compte of comptes; track compte.id) {
+                <option [ngValue]="compte.id">
                   {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }} ({{ compte.solde | number:'1.2-2' }} €)
                 </option>
               }
             </select>
-            @if (isFieldInvalid('numeroCompte')) {
-              <span class="error-message">{{ getFieldError('numeroCompte') }}</span>
+            @if (isFieldInvalid('compteId')) {
+              <span class="error-message">{{ getFieldError('compteId') }}</span>
             }
           </div>
 
@@ -141,21 +141,21 @@
             <h3><i class="fas fa-credit-card"></i> Compte Destination</h3>
             
             <div class="form-group">
-              <label for="compteDestination">Sélectionner le compte bénéficiaire *</label>
+              <label for="compteDestinationId">Sélectionner le compte bénéficiaire *</label>
               <select 
-                id="compteDestination" 
-                formControlName="compteDestination"
-                [class.invalid]="isFieldInvalid('compteDestination')"
+                id="compteDestinationId" 
+                formControlName="compteDestinationId"
+                [class.invalid]="isFieldInvalid('compteDestinationId')"
               >
-                <option value="">Choisissez un compte</option>
-                @for (compte of comptesDestination; track compte.numeroCompte) {
-                  <option [value]="compte.numeroCompte">
+                <option [ngValue]="null">Choisissez un compte</option>
+                @for (compte of comptesDestination; track compte.id) {
+                  <option [ngValue]="compte.id">
                     {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }}
                   </option>
                 }
               </select>
-              @if (isFieldInvalid('compteDestination')) {
-                <span class="error-message">{{ getFieldError('compteDestination') }}</span>
+              @if (isFieldInvalid('compteDestinationId')) {
+                <span class="error-message">{{ getFieldError('compteDestinationId') }}</span>
               }
             </div>
           </div>
@@ -182,16 +182,6 @@
             @if (isFieldInvalid('montant')) {
               <span class="error-message">{{ getFieldError('montant') }}</span>
             }
-          </div>
-
-          <div class="form-group">
-            <label for="description">Description (optionnel)</label>
-            <input 
-              type="text" 
-              id="description" 
-              formControlName="description"
-              placeholder="Ex: Salaire, Loyer, Achat..."
-            >
           </div>
         </div>
 

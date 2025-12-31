@@ -82,8 +82,7 @@ export class TransactionListComponent implements OnInit {
 
     if (this.selectedCompte) {
       result = result.filter(t => 
-        t.numeroCompte === this.selectedCompte || 
-        t.compteDestination === this.selectedCompte
+        t.numeroCompte === this.selectedCompte
       );
     }
 
@@ -118,7 +117,7 @@ export class TransactionListComponent implements OnInit {
   calculateStats(): void {
     const depots = this.filteredTransactions.filter(t => t.type === 'DEPOT');
     const retraits = this.filteredTransactions.filter(t => t.type === 'RETRAIT');
-    const virements = this.filteredTransactions.filter(t => t.type === 'VIREMENT');
+    const virements = this.filteredTransactions.filter(t => t.type === 'VIREMENT' || t.type === 'TRANSFERT');
 
     this.stats = {
       totalTransactions: this.filteredTransactions.length,
@@ -135,7 +134,8 @@ export class TransactionListComponent implements OnInit {
     switch (type) {
       case 'DEPOT': return 'fa-arrow-down';
       case 'RETRAIT': return 'fa-arrow-up';
-      case 'VIREMENT': return 'fa-exchange-alt';
+      case 'VIREMENT': 
+      case 'TRANSFERT': return 'fa-exchange-alt';
       default: return 'fa-circle';
     }
   }
@@ -145,14 +145,14 @@ export class TransactionListComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    const headers = ['Date', 'Type', 'Compte', 'Description', 'Montant', 'Solde Après'];
+    const headers = ['Date', 'Type', 'Compte', 'Montant', 'Solde Avant', 'Solde Après'];
     const rows = this.filteredTransactions.map(t => [
-      new Date(t.date).toLocaleString('fr-FR'),
+      new Date(t.dateTransaction).toLocaleString('fr-FR'),
       t.type,
-      t.numeroCompte,
-      t.description,
+      t.numeroCompte || '',
       t.montant.toFixed(2),
-      t.soldeApres.toFixed(2)
+      t.montantAvant.toFixed(2),
+      t.montantApres.toFixed(2)
     ]);
 
     const csvContent = [headers, ...rows].map(row => row.join(';')).join('\n');

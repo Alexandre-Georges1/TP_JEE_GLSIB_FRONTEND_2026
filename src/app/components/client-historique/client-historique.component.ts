@@ -46,7 +46,7 @@ export class ClientHistoriqueComponent implements OnInit {
       // Trier par date décroissante
       this.transactions.set(
         myTransactions.sort((a: Transaction, b: Transaction) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
+          new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime()
         )
       );
       this.applyFilters();
@@ -64,14 +64,14 @@ export class ClientHistoriqueComponent implements OnInit {
     // Filtre par date début
     if (this.dateDebut()) {
       const debut = new Date(this.dateDebut());
-      result = result.filter(t => new Date(t.date) >= debut);
+      result = result.filter(t => new Date(t.dateTransaction) >= debut);
     }
 
     // Filtre par date fin
     if (this.dateFin()) {
       const fin = new Date(this.dateFin());
       fin.setHours(23, 59, 59, 999);
-      result = result.filter(t => new Date(t.date) <= fin);
+      result = result.filter(t => new Date(t.dateTransaction) <= fin);
     }
 
     this.filteredTransactions.set(result);

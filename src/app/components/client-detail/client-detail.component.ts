@@ -33,13 +33,14 @@ export class ClientDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      const id = parseInt(idParam, 10);
       this.loadClient(id);
     }
   }
 
-  loadClient(id: string): void {
+  loadClient(id: number): void {
     this.clientService.getClientById(id).subscribe(client => {
       if (client) {
         this.client = client;
@@ -50,8 +51,8 @@ export class ClientDetailComponent implements OnInit {
     });
   }
 
-  loadComptes(clientId: string): void {
-    this.compteService.getComptesByClient(clientId).subscribe(comptes => {
+  loadComptes(clientId: number): void {
+    this.compteService.getComptesByClient(String(clientId)).subscribe(comptes => {
       this.comptes = comptes;
       if (comptes.length > 0) {
         this.selectCompte(comptes[0]);
@@ -66,9 +67,9 @@ export class ClientDetailComponent implements OnInit {
     });
   }
 
-  getAge(dateNaissance: Date): number {
+  getAge(dnaissance: Date): number {
     const today = new Date();
-    const birth = new Date(dateNaissance);
+    const birth = new Date(dnaissance);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
@@ -96,9 +97,16 @@ export class ClientDetailComponent implements OnInit {
       this.comptes.forEach(compte => {
         this.transactionService.deleteTransactionsByCompte(compte.numeroCompte);
       });
-      this.compteService.deleteComptesByClient(this.client.id);
-      this.clientService.deleteClient(this.client.id);
-      this.router.navigate(['/clients']);
+      this.compteService.deleteComptesByClient(String(this.client.id));
+      this.clientService.deleteClient(this.client.id).subscribe({
+        next: () => {
+          this.router.navigate(['/clients']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          this.router.navigate(['/clients']);
+        }
+      });
     }
   }
 

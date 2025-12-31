@@ -64,53 +64,65 @@ export class ClientTransactionComponent implements OnInit {
     this.successMessage.set('');
   }
 
-  async onSubmit(): Promise<void> {
-    if (!this.compte()) {
-      this.errorMessage.set('Compte non trouvé');
-      return;
-    }
+  // ...existing code...
+onSubmit(): void {
+  const compte = this.compte();
+  if (!compte || compte.id === undefined) {
+    this.errorMessage.set('Compte non trouvé');
+    return;
+  }
 
-    if (this.montant() <= 0) {
-      this.errorMessage.set('Le montant doit être supérieur à 0');
-      return;
-    }
+  if (this.montant() <= 0) {
+    this.errorMessage.set('Le montant doit être supérieur à 0');
+    return;
+  }
 
-    if (this.transactionType() === 'VIREMENT' && !this.compteDestination()) {
-      this.errorMessage.set('Veuillez sélectionner un compte de destination');
-      return;
-    }
+  if (this.transactionType() === 'VIREMENT' && !this.compteDestination()) {
+    this.errorMessage.set('Veuillez sélectionner un compte de destination');
+    return;
+  }
 
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
+  this.isLoading.set(true);
+  this.errorMessage.set('');
+  this.successMessage.set('');
 
-    const formData: TransactionFormData = {
-      numeroCompte: this.compte()!.numeroCompte,
-      type: this.transactionType(),
-      montant: this.montant(),
-      compteDestination: this.transactionType() === 'VIREMENT' ? this.compteDestination() : undefined
-    };
-
-    try {
-      const result = await this.transactionService.effectuerTransaction(formData);
-      
-      if (result.success) {
-        this.successMessage.set(this.getSuccessMessage());
-        // Recharger le compte pour avoir le nouveau solde
-        this.compteService.getCompteByNumero(this.compte()!.numeroCompte).subscribe(updatedCompte => {
-          this.compte.set(updatedCompte || null);
-        });
-        this.montant.set(0);
-        this.compteDestination.set('');
-      } else {
-        this.errorMessage.set(result.message);
-      }
-    } catch (error) {
-      this.errorMessage.set('Une erreur est survenue');
-    } finally {
+  // Trouver l'id du compte destination si besoin
+  let compteDestinationId: number | undefined = undefined;
+  if (this.transactionType() === 'VIREMENT') {
+    const destination = this.allComptes().find(
+      c => c.numeroCompte === this.compteDestination()
+    );
+    compteDestinationId = destination ? destination.id : undefined;
+    if (!compteDestinationId) {
+      this.errorMessage.set('Compte de destination invalide');
       this.isLoading.set(false);
+      return;
     }
   }
+
+  const formData: TransactionFormData = {
+    compteId: compte.id,
+    type: this.transactionType(),
+    montant: this.montant(),
+    compteDestinationId: compteDestinationId
+  };
+
+  this.transactionService.effectuerTransaction(formData).subscribe(result => {
+    if (result.success) {
+      this.successMessage.set(this.getSuccessMessage());
+      // Recharger le compte pour avoir le nouveau solde
+      this.compteService.getCompteByNumero(this.compte()!.numeroCompte).subscribe(updatedCompte => {
+        this.compte.set(updatedCompte || null);
+      });
+      this.montant.set(0);
+      this.compteDestination.set('');
+    } else {
+      this.errorMessage.set(result.message);
+    }
+    this.isLoading.set(false);
+  });
+}
+// ...existing code...
 
   private getSuccessMessage(): string {
     switch (this.transactionType()) {

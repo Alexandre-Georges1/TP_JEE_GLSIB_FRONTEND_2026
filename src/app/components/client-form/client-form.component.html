@@ -56,15 +56,15 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="dateNaissance">Date de Naissance *</label>
+            <label for="dnaissance">Date de Naissance *</label>
             <input 
               type="date" 
-              id="dateNaissance" 
-              formControlName="dateNaissance"
-              [class.invalid]="isFieldInvalid('dateNaissance')"
+              id="dnaissance" 
+              formControlName="dnaissance"
+              [class.invalid]="isFieldInvalid('dnaissance')"
             >
-            @if (isFieldInvalid('dateNaissance')) {
-              <span class="error-message">{{ getFieldError('dateNaissance') }}</span>
+            @if (isFieldInvalid('dnaissance')) {
+              <span class="error-message">{{ getFieldError('dnaissance') }}</span>
             }
           </div>
 
@@ -122,30 +122,30 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="telephone">Téléphone *</label>
+            <label for="tel">Téléphone *</label>
             <input 
               type="tel" 
-              id="telephone" 
-              formControlName="telephone"
-              [class.invalid]="isFieldInvalid('telephone')"
+              id="tel" 
+              formControlName="tel"
+              [class.invalid]="isFieldInvalid('tel')"
               placeholder="+33 6 12 34 56 78"
             >
-            @if (isFieldInvalid('telephone')) {
-              <span class="error-message">{{ getFieldError('telephone') }}</span>
+            @if (isFieldInvalid('tel')) {
+              <span class="error-message">{{ getFieldError('tel') }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label for="email">Email *</label>
+            <label for="courriel">Email *</label>
             <input 
               type="email" 
-              id="email" 
-              formControlName="email"
-              [class.invalid]="isFieldInvalid('email')"
+              id="courriel" 
+              formControlName="courriel"
+              [class.invalid]="isFieldInvalid('courriel')"
               placeholder="exemple@email.com"
             >
-            @if (isFieldInvalid('email')) {
-              <span class="error-message">{{ getFieldError('email') }}</span>
+            @if (isFieldInvalid('courriel')) {
+              <span class="error-message">{{ getFieldError('courriel') }}</span>
             }
           </div>
         </div>

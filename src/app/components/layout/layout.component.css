@@ -201,12 +201,6 @@
   color: #fca5a5;
 }
 
-/* Sidebar Footer */
-.sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .footer-content {
   display: flex;
   align-items: center;

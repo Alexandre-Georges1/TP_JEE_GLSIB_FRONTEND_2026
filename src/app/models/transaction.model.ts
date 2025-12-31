@@ -1,22 +1,32 @@
+import { Compte } from './compte.model';
+
 export type TypeTransaction = 'DEPOT' | 'RETRAIT' | 'VIREMENT';
 
+// Interface correspondant à l'entité backend
 export interface Transaction {
-  id: string;
-  numeroCompte: string;
-  type: TypeTransaction;
+  id?: number;
+  dateTransaction: Date;
+  type: string;
+  montantAvant: number;
+  montantApres: number;
   montant: number;
-  date: Date;
-  description: string;
-  soldeApres: number;
-  compteSource?: string;
+  compte?: Compte;
+  
+  numeroCompte?: string;
+  description?: string;
   compteDestination?: string;
 }
 
 export interface TransactionFormData {
-  numeroCompte: string;
+  compteId: number;
   type: TypeTransaction;
   montant: number;
-  description?: string;
-  compteSource?: string;
-  compteDestination?: string;
+  compteDestinationId?: number;
+}
+export interface DeposerRetirerRequest {
+  montant: number;
+}
+export interface TransfererRequest {
+  montant: number;
+  id: number;  
 }

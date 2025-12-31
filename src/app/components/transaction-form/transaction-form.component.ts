@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Compte } from '../../models/compte.model';
+import { TransactionFormData } from '../../models/transaction.model';
 import { TransactionService } from '../../services/transaction.service';
 import { CompteService } from '../../services/compte.service';
 
@@ -38,8 +39,13 @@ export class TransactionFormComponent implements OnInit {
     // Vérifier les query params
     this.route.queryParams.subscribe(params => {
       if (params['compte']) {
-        this.transactionForm.patchValue({ numeroCompte: params['compte'] });
-        this.onCompteChange();
+        // Trouver le compte par numéro et définir l'ID
+        this.compteService.getCompteByNumero(params['compte']).subscribe(compte => {
+          if (compte && compte.id) {
+            this.transactionForm.patchValue({ compteId: compte.id });
+            this.onCompteChange();
+          }
+        });
       }
       if (params['type']) {
         this.preselectedType = params['type'];
@@ -50,16 +56,15 @@ export class TransactionFormComponent implements OnInit {
 
   private initForm(): void {
     this.transactionForm = this.fb.group({
-      numeroCompte: ['', [Validators.required]],
+      compteId: [null, [Validators.required]],
       type: ['DEPOT', [Validators.required]],
       montant: [null, [Validators.required, Validators.min(0.01)]],
-      description: [''],
-      compteDestination: ['']
+      compteDestinationId: [null]
     });
 
     // Ajouter la validation conditionnelle pour le virement
     this.transactionForm.get('type')?.valueChanges.subscribe(type => {
-      const compteDestinationControl = this.transactionForm.get('compteDestination');
+      const compteDestinationControl = this.transactionForm.get('compteDestinationId');
       if (type === 'VIREMENT') {
         compteDestinationControl?.setValidators([Validators.required]);
       } else {
@@ -76,14 +81,14 @@ export class TransactionFormComponent implements OnInit {
   }
 
   onCompteChange(): void {
-    const numeroCompte = this.transactionForm.get('numeroCompte')?.value;
-    this.selectedCompte = this.comptes.find(c => c.numeroCompte === numeroCompte) || null;
+    const compteId = this.transactionForm.get('compteId')?.value;
+    this.selectedCompte = this.comptes.find(c => c.id === compteId) || null;
     
     // Mettre à jour la liste des comptes destination (exclure le compte sélectionné)
-    this.comptesDestination = this.comptes.filter(c => c.numeroCompte !== numeroCompte);
+    this.comptesDestination = this.comptes.filter(c => c.id !== compteId);
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.transactionForm.invalid) {
       this.markAllAsTouched();
       return;
@@ -93,37 +98,45 @@ export class TransactionFormComponent implements OnInit {
     this.submitError = '';
     this.submitSuccess = '';
 
-    try {
-      const result = await this.transactionService.effectuerTransaction(this.transactionForm.value);
-      
-      if (result.success) {
-        this.submitSuccess = result.message;
-        
-        // Rafraîchir les infos du compte
-        this.loadComptes();
-        setTimeout(() => {
-          this.onCompteChange();
-        }, 100);
-        
-        // Reset le formulaire partiellement
-        this.transactionForm.patchValue({
-          montant: null,
-          description: '',
-          compteDestination: ''
-        });
-        
-        // Optionnel : rediriger après quelques secondes
-        setTimeout(() => {
-          this.submitSuccess = '';
-        }, 3000);
-      } else {
-        this.submitError = result.message;
+    const formValue = this.transactionForm.value;
+    const transactionData: TransactionFormData = {
+      compteId: formValue.compteId,
+      type: formValue.type,
+      montant: formValue.montant,
+      compteDestinationId: formValue.compteDestinationId
+    };
+
+    this.transactionService.effectuerTransaction(transactionData).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.submitSuccess = result.message;
+          
+          // Rafraîchir les infos du compte
+          this.loadComptes();
+          setTimeout(() => {
+            this.onCompteChange();
+          }, 100);
+          
+          // Reset le formulaire partiellement
+          this.transactionForm.patchValue({
+            montant: null,
+            compteDestinationId: null
+          });
+          
+          // Optionnel : effacer le message après quelques secondes
+          setTimeout(() => {
+            this.submitSuccess = '';
+          }, 3000);
+        } else {
+          this.submitError = result.message;
+        }
+        this.loading = false;
+      },
+      error: () => {
+        this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
+        this.loading = false;
       }
-    } catch (error) {
-      this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
-    }
-    
-    this.loading = false;
+    });
   }
 
   private markAllAsTouched(): void {

@@ -1,17 +1,25 @@
+import { Client } from './client.model';
+import { Transaction } from './transaction.model';
+
 export type TypeCompte = 'EPARGNE' | 'COURANT';
 
 export interface Compte {
+  id?: number;
   numeroCompte: string;
-  typeCompte: TypeCompte;
   dateCreation: Date;
+  typeCompte: string;
   solde: number;
-  clientId: string;
+  client?: Client;
+  transactions?: Transaction[];
+  // Champs ajoutés pour affichage
   clientNom?: string;
   clientPrenom?: string;
 }
 
 export interface CompteFormData {
-  typeCompte: TypeCompte;
-  soldeInitial: number;
-  clientId: string;
+  typeCompte: string;
+  solde: number;
+  client: {
+    id: number;
+  };
 }

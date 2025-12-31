@@ -14,11 +14,7 @@
 .welcome-section h1 {
   margin: 0;
   font-size: 2rem;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: black;
 }
 
 .welcome-section p {

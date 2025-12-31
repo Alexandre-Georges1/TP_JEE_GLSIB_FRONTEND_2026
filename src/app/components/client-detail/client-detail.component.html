@@ -33,13 +33,13 @@
           </div>
           <div class="info-item">
             <span class="label">Date de Naissance</span>
-            <span class="value">{{ client.dateNaissance | date:'dd MMMM yyyy' }} ({{ getAge(client.dateNaissance) }} ans)</span>
+            <span class="value">{{ client.dnaissance | date:'dd MMMM yyyy' }} ({{ getAge(client.dnaissance) }} ans)</span>
           </div>
           <div class="info-item">
             <span class="label">Sexe</span>
             <span class="value">
-              <i class="fas" [class.fa-mars]="client.sexe === 'M'" [class.fa-venus]="client.sexe === 'F'"></i>
-              {{ client.sexe === 'M' ? 'Masculin' : 'Féminin' }}
+              <i class="fas" [class.fa-mars]="client.sexe === 'MASCULIN'" [class.fa-venus]="client.sexe === 'FEMININ'"></i>
+              {{ client.sexe === 'MASCULIN' ? 'Masculin' : 'Féminin' }}
             </span>
           </div>
           <div class="info-item">
@@ -53,19 +53,21 @@
           <div class="info-item">
             <span class="label">Téléphone</span>
             <span class="value">
-              <a href="tel:{{ client.telephone }}">{{ client.telephone }}</a>
+              <a href="tel:{{ client.tel }}">{{ client.tel }}</a>
             </span>
           </div>
           <div class="info-item">
             <span class="label">Email</span>
             <span class="value">
-              <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+              <a href="mailto:{{ client.courriel }}">{{ client.courriel }}</a>
             </span>
           </div>
+          <!--
           <div class="info-item">
             <span class="label">Client depuis</span>
             <span class="value">{{ client.dateCreation | date:'dd MMM yyyy' }}</span>
           </div>
+           -->
         </div>
       </div>
 
@@ -161,7 +163,7 @@
                         </div>
                         <div class="txn-info">
                           <span class="txn-description">{{ txn.description }}</span>
-                          <span class="txn-date">{{ txn.date | date:'dd/MM/yyyy HH:mm' }}</span>
+                          <span class="txn-date">{{ txn.dateTransaction | date:'dd/MM/yyyy HH:mm' }}</span>
                         </div>
                         <div class="txn-amount" [class.credit]="txn.type === 'DEPOT'" [class.debit]="txn.type !== 'DEPOT'">
                           {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €

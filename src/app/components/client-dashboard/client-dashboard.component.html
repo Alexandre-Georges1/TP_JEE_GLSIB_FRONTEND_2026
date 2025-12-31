@@ -114,7 +114,7 @@
                       @case ('VIREMENT') { Virement }
                     }
                   </span>
-                  <span class="txn-date">{{ formatDate(transaction.date) }}</span>
+                  <span class="txn-date">{{ formatDate(transaction.dateTransaction) }}</span>
                 </div>
                 <div class="txn-amount" [class]="getTransactionClass(transaction)">
                   {{ getTransactionSign(transaction) }}{{ formatMontant(transaction.montant) }}

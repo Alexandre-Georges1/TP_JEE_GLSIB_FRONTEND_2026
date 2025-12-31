@@ -1,56 +1,61 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { Transaction, TransactionFormData, TypeTransaction } from '../models/transaction.model';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, map, catchError, of, tap, switchMap, forkJoin } from 'rxjs';
+import { Transaction, TransactionFormData, TypeTransaction, DeposerRetirerRequest, TransfererRequest } from '../models/transaction.model';
 import { CompteService } from './compte.service';
+import { Compte } from '../models/compte.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionService {
   private transactions$ = new BehaviorSubject<Transaction[]>([]);
-  private storageKey = 'egabank_transactions';
   private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8081/comptes';
 
   constructor(private compteService: CompteService) {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage();
+      this.loadTransactions();
     }
   }
 
-  private loadFromStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
-    const stored = localStorage.getItem(this.storageKey);
-    if (stored) {
-      const transactions = JSON.parse(stored).map((t: any) => ({
-        ...t,
-        date: new Date(t.date)
-      }));
-      this.transactions$.next(transactions);
-    }
+  private loadTransactions(): void {
+    // Charger les transactions via les comptes (les transactions sont liées aux comptes)
+    this.compteService.getComptes().subscribe(comptes => {
+      const allTransactions: Transaction[] = [];
+      comptes.forEach(compte => {
+        if (compte.transactions && compte.transactions.length > 0) {
+          compte.transactions.forEach(txn => {
+            allTransactions.push({
+              ...txn,
+              numeroCompte: compte.numeroCompte
+            });
+          });
+        }
+      });
+      this.transactions$.next(allTransactions);
+    });
   }
 
-  private saveToStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    localStorage.setItem(this.storageKey, JSON.stringify(this.transactions$.value));
-  }
-
-  private generateId(): string {
-    return 'TXN-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 5).toUpperCase();
+  refreshTransactions(): void {
+    this.loadTransactions();
   }
 
   getTransactions(): Observable<Transaction[]> {
     return this.transactions$.pipe(
-      map(txns => [...txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
+      map(txns => [...txns].sort((a, b) => 
+        new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime()
+      ))
     );
   }
 
   getTransactionsByCompte(numeroCompte: string): Observable<Transaction[]> {
     return this.transactions$.pipe(
       map(txns => txns
-        .filter(t => t.numeroCompte === numeroCompte || t.compteDestination === numeroCompte)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .filter(t => t.numeroCompte === numeroCompte)
+        .sort((a, b) => new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime())
       )
     );
   }
@@ -59,106 +64,74 @@ export class TransactionService {
     return this.transactions$.pipe(
       map(txns => txns
         .filter(t => {
-          const txnDate = new Date(t.date);
+          const txnDate = new Date(t.dateTransaction);
           return txnDate >= dateDebut && txnDate <= dateFin;
         })
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .sort((a, b) => new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime())
       )
     );
   }
 
-  async effectuerTransaction(data: TransactionFormData): Promise<{ success: boolean; message: string; transaction?: Transaction }> {
-    return new Promise((resolve) => {
-      this.compteService.getCompteByNumero(data.numeroCompte).subscribe(compte => {
-        if (!compte) {
-          resolve({ success: false, message: 'Compte non trouvé' });
-          return;
+  // Méthode pour effectuer un dépôt
+  deposer(compteId: number, montant: number): Observable<{ success: boolean; message: string }> {
+    const body: DeposerRetirerRequest = { montant };
+    return this.http.post(`${this.apiUrl}/${compteId}/deposer`, body).pipe(
+      tap(() => this.refreshTransactions()),
+      map(() => ({ success: true, message: 'Dépôt effectué avec succès' })),
+      catchError(error => {
+        console.error('Erreur lors du dépôt:', error);
+        return of({ success: false, message: error.error?.message || 'Erreur lors du dépôt' });
+      })
+    );
+  }
+
+  // Méthode pour effectuer un retrait
+  retirer(compteId: number, montant: number): Observable<{ success: boolean; message: string }> {
+    const body: DeposerRetirerRequest = { montant };
+    return this.http.post(`${this.apiUrl}/${compteId}/retirer`, body).pipe(
+      tap(() => this.refreshTransactions()),
+      map(() => ({ success: true, message: 'Retrait effectué avec succès' })),
+      catchError(error => {
+        console.error('Erreur lors du retrait:', error);
+        return of({ success: false, message: error.error?.message || 'Solde insuffisant ou erreur lors du retrait' });
+      })
+    );
+  }
+
+  // Méthode pour effectuer un virement
+  transferer(compteSourceId: number, compteDestId: number, montant: number): Observable<{ success: boolean; message: string }> {
+    const body: TransfererRequest = { montant, id: compteDestId };
+    return this.http.post(`${this.apiUrl}/${compteSourceId}/transferer`, body).pipe(
+      tap(() => this.refreshTransactions()),
+      map(() => ({ success: true, message: 'Virement effectué avec succès' })),
+      catchError(error => {
+        console.error('Erreur lors du virement:', error);
+        return of({ success: false, message: error.error?.message || 'Erreur lors du virement' });
+      })
+    );
+  }
+
+  // Méthode unifiée pour effectuer une transaction
+  effectuerTransaction(data: TransactionFormData): Observable<{ success: boolean; message: string }> {
+    switch (data.type) {
+      case 'DEPOT':
+        return this.deposer(data.compteId, data.montant);
+      case 'RETRAIT':
+        return this.retirer(data.compteId, data.montant);
+      case 'VIREMENT':
+        if (!data.compteDestinationId) {
+          return of({ success: false, message: 'Compte destination requis pour un virement' });
         }
-
-        let nouveauSolde = compte.solde;
-        let description = data.description || '';
-
-        switch (data.type) {
-          case 'DEPOT':
-            nouveauSolde += data.montant;
-            description = description || `Dépôt de ${data.montant.toFixed(2)} €`;
-            break;
-
-          case 'RETRAIT':
-            if (compte.solde < data.montant) {
-              resolve({ success: false, message: 'Solde insuffisant' });
-              return;
-            }
-            nouveauSolde -= data.montant;
-            description = description || `Retrait de ${data.montant.toFixed(2)} €`;
-            break;
-
-          case 'VIREMENT':
-            if (!data.compteDestination) {
-              resolve({ success: false, message: 'Compte destination requis' });
-              return;
-            }
-            if (compte.solde < data.montant) {
-              resolve({ success: false, message: 'Solde insuffisant' });
-              return;
-            }
-            
-            this.compteService.getCompteByNumero(data.compteDestination).subscribe(compteDest => {
-              if (!compteDest) {
-                resolve({ success: false, message: 'Compte destination non trouvé' });
-                return;
-              }
-
-              // Débiter le compte source
-              this.compteService.updateSolde(data.numeroCompte, compte.solde - data.montant);
-              // Créditer le compte destination
-              this.compteService.updateSolde(data.compteDestination!, compteDest.solde + data.montant);
-
-              const transaction: Transaction = {
-                id: this.generateId(),
-                numeroCompte: data.numeroCompte,
-                type: 'VIREMENT',
-                montant: data.montant,
-                date: new Date(),
-                description: description || `Virement vers ${data.compteDestination}`,
-                soldeApres: compte.solde - data.montant,
-                compteDestination: data.compteDestination
-              };
-
-              const current = this.transactions$.value;
-              this.transactions$.next([...current, transaction]);
-              this.saveToStorage();
-
-              resolve({ success: true, message: 'Virement effectué avec succès', transaction });
-            });
-            return;
-        }
-
-        this.compteService.updateSolde(data.numeroCompte, nouveauSolde);
-
-        const transaction: Transaction = {
-          id: this.generateId(),
-          numeroCompte: data.numeroCompte,
-          type: data.type,
-          montant: data.montant,
-          date: new Date(),
-          description,
-          soldeApres: nouveauSolde
-        };
-
-        const current = this.transactions$.value;
-        this.transactions$.next([...current, transaction]);
-        this.saveToStorage();
-
-        resolve({ success: true, message: 'Transaction effectuée avec succès', transaction });
-      });
-    });
+        return this.transferer(data.compteId, data.compteDestinationId, data.montant);
+      default:
+        return of({ success: false, message: 'Type de transaction invalide' });
+    }
   }
 
   getRecentTransactions(limit: number = 10): Observable<Transaction[]> {
     return this.transactions$.pipe(
       map(txns => [...txns]
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .sort((a, b) => new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime())
         .slice(0, limit)
       )
     );
@@ -166,8 +139,7 @@ export class TransactionService {
 
   deleteTransactionsByCompte(numeroCompte: string): void {
     const current = this.transactions$.value;
-    const filtered = current.filter(t => t.numeroCompte !== numeroCompte && t.compteDestination !== numeroCompte);
+    const filtered = current.filter(t => t.numeroCompte !== numeroCompte);
     this.transactions$.next(filtered);
-    this.saveToStorage();
   }
 }

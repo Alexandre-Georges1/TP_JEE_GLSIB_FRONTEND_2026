@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, map, tap, catchError, of } from 'rxjs';
 import { Client, ClientFormData } from '../models/client.model';
 
 @Injectable({
@@ -10,11 +11,27 @@ export class ClientService {
   private clients$ = new BehaviorSubject<Client[]>([]);
   private storageKey = 'egabank_clients';
   private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8081/clients';
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage();
+      this.loadClients();
     }
+  }
+
+  private loadClients(): void {
+    this.http.get<Client[]>(this.apiUrl).pipe(
+      catchError(() => {
+        // En cas d'erreur, charger depuis localStorage
+        this.loadFromStorage();
+        return of([]);
+      })
+    ).subscribe(clients => {
+      if (clients.length > 0) {
+        this.clients$.next(clients);
+      }
+    });
   }
 
   private loadFromStorage(): void {
@@ -22,42 +39,8 @@ export class ClientService {
     
     const stored = localStorage.getItem(this.storageKey);
     if (stored) {
-      const clients = JSON.parse(stored).map((c: any) => ({
-        ...c,
-        dateNaissance: new Date(c.dateNaissance),
-        dateCreation: new Date(c.dateCreation)
-      }));
+      const clients = JSON.parse(stored);
       this.clients$.next(clients);
-    } else {
-      // Données de démonstration
-      const demoClients: Client[] = [
-        {
-          id: this.generateId(),
-          nom: 'Dupont',
-          prenom: 'Jean',
-          dateNaissance: new Date('1985-03-15'),
-          sexe: 'M',
-          adresse: '123 Rue de la Paix, Paris',
-          telephone: '+33 6 12 34 56 78',
-          email: 'jean.dupont@email.com',
-          nationalite: 'Française',
-          dateCreation: new Date()
-        },
-        {
-          id: this.generateId(),
-          nom: 'Martin',
-          prenom: 'Marie',
-          dateNaissance: new Date('1990-07-22'),
-          sexe: 'F',
-          adresse: '456 Avenue des Champs, Lyon',
-          telephone: '+33 6 98 76 54 32',
-          email: 'marie.martin@email.com',
-          nationalite: 'Française',
-          dateCreation: new Date()
-        }
-      ];
-      this.clients$.next(demoClients);
-      this.saveToStorage();
     }
   }
 
@@ -74,59 +57,59 @@ export class ClientService {
     return this.clients$.asObservable();
   }
 
-  getClientById(id: string): Observable<Client | undefined> {
+  getClientById(id: number): Observable<Client | undefined> {
     return this.clients$.pipe(
       map(clients => clients.find(c => c.id === id))
     );
   }
 
-  createClient(data: ClientFormData): Client {
-    const newClient: Client = {
-      id: this.generateId(),
-      nom: data.nom,
-      prenom: data.prenom,
-      dateNaissance: new Date(data.dateNaissance),
-      sexe: data.sexe,
-      adresse: data.adresse,
-      telephone: data.telephone,
-      email: data.email,
-      nationalite: data.nationalite,
-      dateCreation: new Date()
-    };
-
-    const current = this.clients$.value;
-    this.clients$.next([...current, newClient]);
-    this.saveToStorage();
-    return newClient;
+  createClient(data: ClientFormData): Observable<Client> {
+    return this.http.post<Client>(this.apiUrl, data).pipe(
+      tap(client => {
+        const current = this.clients$.value;
+        this.clients$.next([...current, client]);
+        this.saveToStorage();
+      }),
+      catchError(error => {
+        console.error('Erreur lors de la création du client:', error);
+        throw error;
+      })
+    );
   }
 
-  updateClient(id: string, data: Partial<ClientFormData>): boolean {
-    const current = this.clients$.value;
-    const index = current.findIndex(c => c.id === id);
-    
-    if (index === -1) return false;
-
-    const updated = {
-      ...current[index],
-      ...data,
-      dateNaissance: data.dateNaissance ? new Date(data.dateNaissance) : current[index].dateNaissance
-    };
-
-    current[index] = updated;
-    this.clients$.next([...current]);
-    this.saveToStorage();
-    return true;
+  updateClient(id: number, data: Partial<ClientFormData>): Observable<boolean> {
+    return this.http.put<Client>(`${this.apiUrl}/${id}`, data).pipe(
+      tap(updatedClient => {
+        const current = this.clients$.value;
+        const index = current.findIndex(c => c.id === id);
+        if (index !== -1) {
+          current[index] = updatedClient;
+          this.clients$.next([...current]);
+          this.saveToStorage();
+        }
+      }),
+      map(() => true),
+      catchError(error => {
+        console.error('Erreur lors de la mise à jour du client:', error);
+        throw error;
+      })
+    );
   }
 
-  deleteClient(id: string): boolean {
-    const current = this.clients$.value;
-    const filtered = current.filter(c => c.id !== id);
-    
-    if (filtered.length === current.length) return false;
-
-    this.clients$.next(filtered);
-    this.saveToStorage();
-    return true;
+  deleteClient(id: number): Observable<boolean> {
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        const current = this.clients$.value;
+        const filtered = current.filter(c => c.id !== id);
+        this.clients$.next(filtered);
+        this.saveToStorage();
+      }),
+      map(() => true),
+      catchError(error => {
+        console.error('Erreur lors de la suppression du client:', error);
+        throw error;
+      })
+    );
   }
 
   searchClients(term: string): Observable<Client[]> {
@@ -134,7 +117,7 @@ export class ClientService {
       map(clients => clients.filter(c =>
         c.nom.toLowerCase().includes(term.toLowerCase()) ||
         c.prenom.toLowerCase().includes(term.toLowerCase()) ||
-        c.email.toLowerCase().includes(term.toLowerCase())
+        c.courriel.toLowerCase().includes(term.toLowerCase())
       ))
     );
   }

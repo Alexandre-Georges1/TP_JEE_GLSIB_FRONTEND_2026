@@ -109,12 +109,12 @@
 
 .info-item .value {
   font-size: 1rem;
-  color: var(--text-primary);
+  color: black ;
   font-weight: 500;
 }
 
 .info-item .value a {
-  color: var(--primary);
+  color: black ;
   text-decoration: none;
 }
 

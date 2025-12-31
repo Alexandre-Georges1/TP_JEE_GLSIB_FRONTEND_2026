@@ -122,7 +122,7 @@
                 </span>
               </td>
               <td>
-                <a [routerLink]="['/clients', compte.clientId]" class="client-link">
+                <a [routerLink]="['/clients', compte.client?.id]" class="client-link">
                   {{ compte.clientPrenom }} {{ compte.clientNom }}
                 </a>
               </td>

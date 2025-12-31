@@ -18,7 +18,7 @@ export class CompteFormComponent implements OnInit {
   clients: Client[] = [];
   loading = false;
   submitError = '';
-  preselectedClientId: string | null = null;
+  preselectedClientId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -35,8 +35,8 @@ export class CompteFormComponent implements OnInit {
     // Vérifier si un client est présélectionné via query params
     this.route.queryParams.subscribe(params => {
       if (params['clientId']) {
-        this.preselectedClientId = params['clientId'];
-        this.compteForm.patchValue({ clientId: params['clientId'] });
+        this.preselectedClientId = parseInt(params['clientId'], 10);
+        this.compteForm.patchValue({ clientId: this.preselectedClientId });
       }
     });
   }
@@ -45,7 +45,7 @@ export class CompteFormComponent implements OnInit {
     this.compteForm = this.fb.group({
       clientId: ['', [Validators.required]],
       typeCompte: ['COURANT', [Validators.required]],
-      soldeInitial: [0, [Validators.required, Validators.min(0)]]
+      solde: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -64,19 +64,30 @@ export class CompteFormComponent implements OnInit {
     this.loading = true;
     this.submitError = '';
 
-    try {
-      const compte = this.compteService.createCompte(this.compteForm.value);
-      
-      // Rediriger vers le client ou la liste des comptes
-      if (this.preselectedClientId) {
-        this.router.navigate(['/clients', this.preselectedClientId]);
-      } else {
-        this.router.navigate(['/comptes']);
+    const formValue = this.compteForm.value;
+    const compteData = {
+      typeCompte: formValue.typeCompte,
+      solde: formValue.solde,
+      client: {
+        id: parseInt(formValue.clientId, 10)
       }
-    } catch (error) {
-      this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
-      this.loading = false;
-    }
+    };
+
+    this.compteService.createCompte(compteData).subscribe({
+      next: () => {
+        // Rediriger vers le client ou la liste des comptes
+        if (this.preselectedClientId) {
+          this.router.navigate(['/clients', this.preselectedClientId]);
+        } else {
+          this.router.navigate(['/comptes']);
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la création du compte:', error);
+        this.submitError = 'Une erreur est survenue. Vérifiez que tous les champs sont valides.';
+        this.loading = false;
+      }
+    });
   }
 
   private markAllAsTouched(): void {

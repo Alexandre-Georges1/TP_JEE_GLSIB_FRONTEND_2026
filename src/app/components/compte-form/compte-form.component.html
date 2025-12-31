@@ -45,7 +45,7 @@
             >
               <option value="">Choisissez un client</option>
               @for (client of clients; track client.id) {
-                <option [value]="client.id">{{ client.prenom }} {{ client.nom }} - {{ client.email }}</option>
+                <option [value]="client.id">{{ client.prenom }} {{ client.nom }} - {{ client.courriel }}</option>
               }
             </select>
             @if (isFieldInvalid('clientId')) {
@@ -88,21 +88,21 @@
           </div>
 
           <div class="form-group">
-            <label for="soldeInitial">Dépôt initial (€)</label>
+            <label for="solde">Dépôt initial (€)</label>
             <div class="amount-input">
               <span class="currency">€</span>
               <input 
                 type="number" 
-                id="soldeInitial" 
-                formControlName="soldeInitial"
-                [class.invalid]="isFieldInvalid('soldeInitial')"
+                id="solde" 
+                formControlName="solde"
+                [class.invalid]="isFieldInvalid('solde')"
                 placeholder="0.00"
                 min="0"
                 step="0.01"
               >
             </div>
-            @if (isFieldInvalid('soldeInitial')) {
-              <span class="error-message">{{ getFieldError('soldeInitial') }}</span>
+            @if (isFieldInvalid('solde')) {
+              <span class="error-message">{{ getFieldError('solde') }}</span>
             }
             <span class="hint">Montant optionnel pour le dépôt d'ouverture</span>
           </div>

@@ -40,8 +40,8 @@ export class ClientListComponent implements OnInit {
       
       // Charger les comptes pour chaque client
       clients.forEach(client => {
-        this.compteService.getComptesByClient(client.id).subscribe(comptes => {
-          this.clientComptes.set(client.id, comptes);
+        this.compteService.getComptesByClient(String(client.id)).subscribe(comptes => {
+          this.clientComptes.set(String(client.id), comptes);
         });
       });
     });
@@ -55,17 +55,17 @@ export class ClientListComponent implements OnInit {
       this.filteredClients = this.clients.filter(c =>
         c.nom.toLowerCase().includes(term) ||
         c.prenom.toLowerCase().includes(term) ||
-        c.email.toLowerCase().includes(term) ||
-        c.telephone.includes(term)
+        c.courriel.toLowerCase().includes(term) ||
+        c.tel.includes(term)
       );
     }
   }
 
-  getClientComptes(clientId: string): Compte[] {
-    return this.clientComptes.get(clientId) || [];
+  getClientComptes(clientId: number): Compte[] {
+    return this.clientComptes.get(String(clientId)) || [];
   }
 
-  getTotalSolde(clientId: string): number {
+  getTotalSolde(clientId: number): number {
     const comptes = this.getClientComptes(clientId);
     return comptes.reduce((sum, c) => sum + c.solde, 0);
   }
@@ -89,18 +89,24 @@ export class ClientListComponent implements OnInit {
       });
       
       // Supprimer les comptes du client
-      this.compteService.deleteComptesByClient(this.clientToDelete.id);
+      this.compteService.deleteComptesByClient(String(this.clientToDelete.id));
       
       // Supprimer le client
-      this.clientService.deleteClient(this.clientToDelete.id);
-      
-      this.cancelDelete();
+      this.clientService.deleteClient(this.clientToDelete.id).subscribe({
+        next: () => {
+          this.cancelDelete();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          this.cancelDelete();
+        }
+      });
     }
   }
 
-  getAge(dateNaissance: Date): number {
+  getAge(dnaissance: Date): number {
     const today = new Date();
-    const birth = new Date(dateNaissance);
+    const birth = new Date(dnaissance);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
