@@ -1,0 +1,228 @@
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header" 
+         [class.depot]="transactionForm.get('type')?.value === 'DEPOT'"
+         [class.retrait]="transactionForm.get('type')?.value === 'RETRAIT'"
+         [class.virement]="transactionForm.get('type')?.value === 'VIREMENT'">
+      <a routerLink="/transactions" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="header-text">
+        <h1>
+          @switch (transactionForm.get('type')?.value) {
+            @case ('DEPOT') {
+              <i class="fas fa-arrow-down"></i> Effectuer un Dépôt
+            }
+            @case ('RETRAIT') {
+              <i class="fas fa-arrow-up"></i> Effectuer un Retrait
+            }
+            @case ('VIREMENT') {
+              <i class="fas fa-exchange-alt"></i> Effectuer un Virement
+            }
+          }
+        </h1>
+        <p>
+          @switch (transactionForm.get('type')?.value) {
+            @case ('DEPOT') {
+              Ajouter des fonds sur un compte
+            }
+            @case ('RETRAIT') {
+              Retirer des fonds d'un compte
+            }
+            @case ('VIREMENT') {
+              Transférer des fonds entre comptes
+            }
+          }
+        </p>
+      </div>
+    </div>
+
+    @if (submitError) {
+      <div class="error-banner">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ submitError }}
+      </div>
+    }
+
+    @if (submitSuccess) {
+      <div class="success-banner">
+        <i class="fas fa-check-circle"></i>
+        {{ submitSuccess }}
+      </div>
+    }
+
+    @if (comptes.length === 0) {
+      <div class="no-comptes-warning">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <strong>Aucun compte disponible</strong>
+          <p>Vous devez d'abord créer un compte bancaire pour effectuer des transactions.</p>
+          <a routerLink="/comptes/new" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Créer un compte
+          </a>
+        </div>
+      </div>
+    } @else {
+      <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+        <!-- Type de transaction -->
+        <div class="form-section">
+          <h3><i class="fas fa-tag"></i> Type d'Opération</h3>
+          
+          <div class="type-selector">
+            <label class="type-option" [class.selected]="transactionForm.get('type')?.value === 'DEPOT'">
+              <input type="radio" formControlName="type" value="DEPOT">
+              <div class="type-content depot">
+                <i class="fas fa-arrow-down"></i>
+                <span>Dépôt</span>
+              </div>
+            </label>
+            <label class="type-option" [class.selected]="transactionForm.get('type')?.value === 'RETRAIT'">
+              <input type="radio" formControlName="type" value="RETRAIT">
+              <div class="type-content retrait">
+                <i class="fas fa-arrow-up"></i>
+                <span>Retrait</span>
+              </div>
+            </label>
+            <label class="type-option" [class.selected]="transactionForm.get('type')?.value === 'VIREMENT'">
+              <input type="radio" formControlName="type" value="VIREMENT">
+              <div class="type-content virement">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Virement</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Compte Source -->
+        <div class="form-section">
+          <h3><i class="fas fa-credit-card"></i> Compte {{ isVirement ? 'Source' : '' }}</h3>
+          
+          <div class="form-group">
+            <label for="numeroCompte">Sélectionner un compte *</label>
+            <select 
+              id="numeroCompte" 
+              formControlName="numeroCompte"
+              (change)="onCompteChange()"
+              [class.invalid]="isFieldInvalid('numeroCompte')"
+            >
+              <option value="">Choisissez un compte</option>
+              @for (compte of comptes; track compte.numeroCompte) {
+                <option [value]="compte.numeroCompte">
+                  {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }} ({{ compte.solde | number:'1.2-2' }} €)
+                </option>
+              }
+            </select>
+            @if (isFieldInvalid('numeroCompte')) {
+              <span class="error-message">{{ getFieldError('numeroCompte') }}</span>
+            }
+          </div>
+
+          @if (selectedCompte) {
+            <div class="compte-preview">
+              <div class="preview-header">
+                <div class="preview-icon" [class.epargne]="selectedCompte.typeCompte === 'EPARGNE'" [class.courant]="selectedCompte.typeCompte === 'COURANT'">
+                  <i class="fas" [class.fa-piggy-bank]="selectedCompte.typeCompte === 'EPARGNE'" [class.fa-wallet]="selectedCompte.typeCompte === 'COURANT'"></i>
+                </div>
+                <div class="preview-info">
+                  <strong>{{ selectedCompte.typeCompte === 'EPARGNE' ? 'Compte Épargne' : 'Compte Courant' }}</strong>
+                  <span>{{ selectedCompte.clientPrenom }} {{ selectedCompte.clientNom }}</span>
+                </div>
+                <div class="preview-balance" [class.positive]="selectedCompte.solde >= 0" [class.negative]="selectedCompte.solde < 0">
+                  {{ selectedCompte.solde | number:'1.2-2' }} €
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Compte Destination (pour virement) -->
+        @if (isVirement) {
+          <div class="form-section">
+            <h3><i class="fas fa-credit-card"></i> Compte Destination</h3>
+            
+            <div class="form-group">
+              <label for="compteDestination">Sélectionner le compte bénéficiaire *</label>
+              <select 
+                id="compteDestination" 
+                formControlName="compteDestination"
+                [class.invalid]="isFieldInvalid('compteDestination')"
+              >
+                <option value="">Choisissez un compte</option>
+                @for (compte of comptesDestination; track compte.numeroCompte) {
+                  <option [value]="compte.numeroCompte">
+                    {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }}
+                  </option>
+                }
+              </select>
+              @if (isFieldInvalid('compteDestination')) {
+                <span class="error-message">{{ getFieldError('compteDestination') }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Montant et Description -->
+        <div class="form-section">
+          <h3><i class="fas fa-coins"></i> Détails de la Transaction</h3>
+          
+          <div class="form-group">
+            <label for="montant">Montant *</label>
+            <div class="amount-input">
+              <span class="currency">€</span>
+              <input 
+                type="number" 
+                id="montant" 
+                formControlName="montant"
+                [class.invalid]="isFieldInvalid('montant')"
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
+              >
+            </div>
+            @if (isFieldInvalid('montant')) {
+              <span class="error-message">{{ getFieldError('montant') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description (optionnel)</label>
+            <input 
+              type="text" 
+              id="description" 
+              formControlName="description"
+              placeholder="Ex: Salaire, Loyer, Achat..."
+            >
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/transactions" class="btn btn-secondary">
+            Annuler
+          </a>
+          <button type="submit" class="btn" 
+                  [class.btn-success]="transactionForm.get('type')?.value === 'DEPOT'"
+                  [class.btn-warning]="transactionForm.get('type')?.value === 'RETRAIT'"
+                  [class.btn-primary]="transactionForm.get('type')?.value === 'VIREMENT'"
+                  [disabled]="loading || comptes.length === 0">
+            @if (loading) {
+              <i class="fas fa-spinner fa-spin"></i>
+              Traitement...
+            } @else {
+              @switch (transactionForm.get('type')?.value) {
+                @case ('DEPOT') {
+                   Effectuer le dépôt
+                }
+                @case ('RETRAIT') {
+                   Effectuer le retrait
+                }
+                @case ('VIREMENT') {
+                   Effectuer le virement
+                }
+              }
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

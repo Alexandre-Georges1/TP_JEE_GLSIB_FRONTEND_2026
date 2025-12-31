@@ -1,0 +1,133 @@
+<div class="client-page">
+  <!-- Header -->
+  <header class="client-header">
+    <div class="header-left">
+      <a routerLink="/client" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <img src="logo.png" alt="EgaBank" class="header-logo">
+      <div class="header-title">
+        <h1>Historique</h1>
+        <span>Vos transactions</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Déconnexion" aria-label="Déconnexion">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="client-content">
+    <!-- Filtres -->
+    <section class="filters-section">
+      <h2><i class="fas fa-filter"></i> Filtres</h2>
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label for="filterType">Type</label>
+          <select 
+            id="filterType" 
+            [ngModel]="filterType()" 
+            (ngModelChange)="filterType.set($event); applyFilters()"
+            name="filterType">
+            <option value="">Tous</option>
+            <option value="DEPOT">Dépôts</option>
+            <option value="RETRAIT">Retraits</option>
+            <option value="VIREMENT">Virements</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="dateDebut">Date début</label>
+          <input 
+            type="date" 
+            id="dateDebut" 
+            [ngModel]="dateDebut()" 
+            (ngModelChange)="dateDebut.set($event); applyFilters()"
+            name="dateDebut">
+        </div>
+        <div class="filter-group">
+          <label for="dateFin">Date fin</label>
+          <input 
+            type="date" 
+            id="dateFin" 
+            [ngModel]="dateFin()" 
+            (ngModelChange)="dateFin.set($event); applyFilters()"
+            name="dateFin">
+        </div>
+        <button class="reset-btn" (click)="resetFilters()">
+          <i class="fas fa-redo"></i>
+          Réinitialiser
+        </button>
+      </div>
+    </section>
+
+    <!-- Résultats -->
+    <section class="results-section">
+      <div class="results-header">
+        <span class="results-count">{{ filteredTransactions().length }} transaction(s)</span>
+      </div>
+
+      @if (filteredTransactions().length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-receipt"></i>
+          <p>Aucune transaction trouvée</p>
+        </div>
+      } @else {
+        <div class="transactions-list">
+          @for (transaction of filteredTransactions(); track transaction.id) {
+            <div class="transaction-card" [class]="getTransactionClass(transaction)">
+              <div class="txn-icon">
+                @switch (transaction.type) {
+                  @case ('DEPOT') {
+                    <i class="fas fa-arrow-down"></i>
+                  }
+                  @case ('RETRAIT') {
+                    <i class="fas fa-arrow-up"></i>
+                  }
+                  @case ('VIREMENT') {
+                    <i class="fas fa-exchange-alt"></i>
+                  }
+                }
+              </div>
+              <div class="txn-details">
+                <div class="txn-header">
+                  <span class="txn-type">
+                    @switch (transaction.type) {
+                      @case ('DEPOT') { Dépôt }
+                      @case ('RETRAIT') { Retrait }
+                      @case ('VIREMENT') { 
+                        @if (transaction.compteSource === numeroCompte()) {
+                          Virement envoyé
+                        } @else {
+                          Virement reçu
+                        }
+                      }
+                    }
+                  </span>
+                  <span class="txn-amount" [class]="getTransactionClass(transaction)">
+                    {{ getTransactionSign(transaction) }}{{ formatMontant(transaction.montant) }}
+                  </span>
+                </div>
+                <div class="txn-meta">
+                  <span class="txn-date">
+                    <i class="fas fa-clock"></i>
+                    {{ formatDate(transaction.date) }}
+                  </span>
+                  @if (transaction.type === 'VIREMENT') {
+                    <span class="txn-account">
+                      <i class="fas fa-credit-card"></i>
+                      @if (transaction.compteSource === numeroCompte()) {
+                        Vers: {{ transaction.compteDestination }}
+                      } @else {
+                        De: {{ transaction.compteSource }}
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </main>
+</div>

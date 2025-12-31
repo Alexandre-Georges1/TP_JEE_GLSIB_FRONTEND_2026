@@ -1,0 +1,145 @@
+<div class="client-page">
+  <!-- Header -->
+  <header class="client-header">
+    <div class="header-left">
+      <a routerLink="/client" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <img src="logo.png" alt="EgaBank" class="header-logo">
+      <div class="header-title">
+        <h1>Transaction</h1>
+        <span>Effectuer une opération</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Déconnexion" aria-label="Déconnexion">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="client-content">
+    @if (compte()) {
+      <!-- Solde actuel -->
+      <div class="balance-card">
+        <span class="balance-label">Solde disponible</span>
+        <span class="balance-amount">{{ formatMontant(compte()!.solde) }}</span>
+        <span class="account-number">{{ compte()!.numeroCompte }}</span>
+      </div>
+
+      <!-- Type de transaction -->
+      <div class="type-selector">
+        <button 
+          class="type-btn" 
+          [class.active]="transactionType() === 'DEPOT'"
+          [class.depot]="transactionType() === 'DEPOT'"
+          (click)="setType('DEPOT')">
+          <i class="fas fa-arrow-down"></i>
+          <span>Dépôt</span>
+        </button>
+        <button 
+          class="type-btn" 
+          [class.active]="transactionType() === 'RETRAIT'"
+          [class.retrait]="transactionType() === 'RETRAIT'"
+          (click)="setType('RETRAIT')">
+          <i class="fas fa-arrow-up"></i>
+          <span>Retrait</span>
+        </button>
+        <button 
+          class="type-btn" 
+          [class.active]="transactionType() === 'VIREMENT'"
+          [class.virement]="transactionType() === 'VIREMENT'"
+          (click)="setType('VIREMENT')">
+          <i class="fas fa-exchange-alt"></i>
+          <span>Virement</span>
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <form class="transaction-form" (ngSubmit)="onSubmit()">
+        @if (errorMessage()) {
+          <div class="message error">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ errorMessage() }}
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="message success">
+            <i class="fas fa-check-circle"></i>
+            {{ successMessage() }}
+          </div>
+        }
+
+        <!-- Compte destination (pour virements) -->
+        @if (transactionType() === 'VIREMENT') {
+          <div class="form-group">
+            <label for="destination">
+              <i class="fas fa-user"></i>
+              Compte destinataire
+            </label>
+            <select 
+              id="destination" 
+              [ngModel]="compteDestination()" 
+              (ngModelChange)="compteDestination.set($event)"
+              name="destination"
+              required>
+              <option value="">Sélectionner un compte</option>
+              @for (c of otherComptes; track c.numeroCompte) {
+                <option [value]="c.numeroCompte">
+                  {{ c.numeroCompte }} - {{ c.clientPrenom }} {{ c.clientNom }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Montant -->
+        <div class="form-group">
+          <label for="montant">
+            <i class="fas fa-euro-sign"></i>
+            Montant
+          </label>
+          <div class="amount-input">
+            <span class="currency">€</span>
+            <input 
+              type="number" 
+              id="montant" 
+              [ngModel]="montant()" 
+              (ngModelChange)="montant.set($event)"
+              name="montant"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              required>
+          </div>
+        </div>
+
+        <!-- Bouton submit -->
+        <button type="submit" class="submit-btn" [class]="transactionType().toLowerCase()" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Traitement...</span>
+          } @else {
+            @switch (transactionType()) {
+              @case ('DEPOT') {
+                <span>Effectuer le dépôt</span>
+              }
+              @case ('RETRAIT') {
+                <span>Effectuer le retrait</span>
+              }
+              @case ('VIREMENT') {
+                <span>Envoyer le virement</span>
+              }
+            }
+          }
+        </button>
+      </form>
+    } @else {
+      <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Compte non trouvé</p>
+        <a routerLink="/client" class="btn-primary">Retour</a>
+      </div>
+    }
+  </main>
+</div>

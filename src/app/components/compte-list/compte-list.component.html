@@ -1,0 +1,203 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-credit-card"></i>
+        Gestion des Comptes
+      </h1>
+      <p class="subtitle">Vue d'ensemble de tous les comptes bancaires</p>
+    </div>
+    <a routerLink="/comptes/new" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nouveau Compte
+    </a>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.totalComptes }}</span>
+        <span class="stat-label">Total Comptes</span>
+      </div>
+    </div>
+    <div class="stat-card epargne">
+      <div class="stat-icon">
+        <i class="fas fa-piggy-bank"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.totalEpargne }}</span>
+        <span class="stat-label">Comptes Épargne</span>
+        <span class="stat-amount">{{ stats.soldeTotalEpargne | number:'1.2-2' }} €</span>
+      </div>
+    </div>
+    <div class="stat-card courant">
+      <div class="stat-icon">
+        <i class="fas fa-money-check-alt"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.totalCourant }}</span>
+        <span class="stat-label">Comptes Courants</span>
+        <span class="stat-amount">{{ stats.soldeTotalCourant | number:'1.2-2' }} €</span>
+      </div>
+    </div>
+    <div class="stat-card solde">
+      <div class="stat-icon">
+        <i class="fas fa-coins"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.soldeTotal | number:'1.2-2' }} €</span>
+        <span class="stat-label">Solde Total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et Recherche -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        placeholder="Rechercher par numéro ou propriétaire..."
+        class="search-input"
+      >
+    </div>
+    <div class="filter-buttons">
+      <button 
+        class="filter-btn" 
+        [class.active]="filterType === 'all'"
+        (click)="filterType = 'all'; onFilterChange()"
+      >
+        Tous
+      </button>
+      <button 
+        class="filter-btn epargne" 
+        [class.active]="filterType === 'EPARGNE'"
+        (click)="filterType = 'EPARGNE'; onFilterChange()"
+      >
+        <i class="fas fa-piggy-bank"></i> Épargne
+      </button>
+      <button 
+        class="filter-btn courant" 
+        [class.active]="filterType === 'COURANT'"
+        (click)="filterType = 'COURANT'; onFilterChange()"
+      >
+        <i class="fas fa-wallet"></i> Courant
+      </button>
+    </div>
+    <div class="results-count">
+      {{ filteredComptes.length }} compte(s)
+    </div>
+  </div>
+
+  <!-- Liste des Comptes -->
+  <div class="comptes-table-container">
+    @if (filteredComptes.length > 0) {
+      <table class="comptes-table">
+        <thead>
+          <tr>
+            <th>Numéro de Compte</th>
+            <th>Type</th>
+            <th>Propriétaire</th>
+            <th>Date d'Ouverture</th>
+            <th>Solde</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (compte of filteredComptes; track compte.numeroCompte) {
+            <tr>
+              <td>
+                <span class="compte-numero">{{ compte.numeroCompte }}</span>
+              </td>
+              <td>
+                <span class="type-badge" [class.epargne]="compte.typeCompte === 'EPARGNE'" [class.courant]="compte.typeCompte === 'COURANT'">
+                  <i class="fas" [class.fa-piggy-bank]="compte.typeCompte === 'EPARGNE'" [class.fa-wallet]="compte.typeCompte === 'COURANT'"></i>
+                  {{ compte.typeCompte }}
+                </span>
+              </td>
+              <td>
+                <a [routerLink]="['/clients', compte.clientId]" class="client-link">
+                  {{ compte.clientPrenom }} {{ compte.clientNom }}
+                </a>
+              </td>
+              <td>
+                {{ compte.dateCreation | date:'dd/MM/yyyy' }}
+              </td>
+              <td>
+                <span class="solde" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
+                  {{ compte.solde | number:'1.2-2' }} €
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <a [routerLink]="['/transactions/new']" [queryParams]="{compte: compte.numeroCompte, type: 'DEPOT'}" class="action-btn deposit" title="Dépôt">
+                    <i class="fas fa-plus"></i>
+                  </a>
+                  <a [routerLink]="['/transactions/new']" [queryParams]="{compte: compte.numeroCompte, type: 'RETRAIT'}" class="action-btn withdraw" title="Retrait">
+                    <i class="fas fa-minus"></i>
+                  </a>
+                  <a [routerLink]="['/transactions/new']" [queryParams]="{compte: compte.numeroCompte, type: 'VIREMENT'}" class="action-btn transfer" title="Virement">
+                    <i class="fas fa-exchange-alt"></i>
+                  </a>
+                  <a [routerLink]="['/transactions']" [queryParams]="{compte: compte.numeroCompte}" class="action-btn history" title="Historique">
+                    <i class="fas fa-history"></i>
+                  </a>
+                  <button class="action-btn delete" (click)="confirmDelete(compte)" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="empty-state">
+        <i class="fas fa-credit-card"></i>
+        <h3>Aucun compte trouvé</h3>
+        <p>
+          @if (searchTerm || filterType !== 'all') {
+            Aucun compte ne correspond à vos critères de recherche
+          } @else {
+            Commencez par créer un nouveau compte bancaire
+          }
+        </p>
+        @if (!searchTerm && filterType === 'all') {
+          <a routerLink="/comptes/new" class="btn btn-primary">
+            Créer un compte
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de suppression -->
+@if (showDeleteModal && compteToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Supprimer le compte</h3>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer le compte <strong>{{ compteToDelete.numeroCompte }}</strong> ?</p>
+        <p class="warning">
+          Solde actuel: <strong>{{ compteToDelete.solde | number:'1.2-2' }} €</strong><br>
+          Toutes les transactions associées seront également supprimées.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+        <button class="btn btn-danger" (click)="deleteCompte()">
+          <i class="fas fa-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

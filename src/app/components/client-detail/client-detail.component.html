@@ -1,0 +1,236 @@
+@if (client) {
+  <div class="page-container">
+    <div class="page-header">
+      <a routerLink="/clients" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="header-content">
+        <h1>{{ client.prenom }} {{ client.nom }}</h1>
+        <span class="client-id">{{ client.id }}</span>
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="['/clients', client.id, 'edit']" class="btn btn-secondary">
+          <i class="fas fa-edit"></i>
+          Modifier
+        </a>
+        <button class="btn btn-danger" (click)="confirmDeleteClient()">
+          <i class="fas fa-trash"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Informations Client -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2><i class="fas fa-user"></i> Informations Personnelles</h2>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Nom Complet</span>
+            <span class="value">{{ client.prenom }} {{ client.nom }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Date de Naissance</span>
+            <span class="value">{{ client.dateNaissance | date:'dd MMMM yyyy' }} ({{ getAge(client.dateNaissance) }} ans)</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Sexe</span>
+            <span class="value">
+              <i class="fas" [class.fa-mars]="client.sexe === 'M'" [class.fa-venus]="client.sexe === 'F'"></i>
+              {{ client.sexe === 'M' ? 'Masculin' : 'Féminin' }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">Nationalité</span>
+            <span class="value">{{ client.nationalite }}</span>
+          </div>
+          <div class="info-item full-width">
+            <span class="label">Adresse</span>
+            <span class="value">{{ client.adresse }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Téléphone</span>
+            <span class="value">
+              <a href="tel:{{ client.telephone }}">{{ client.telephone }}</a>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">Email</span>
+            <span class="value">
+              <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">Client depuis</span>
+            <span class="value">{{ client.dateCreation | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé Financier -->
+      <div class="summary-card">
+        <div class="summary-item">
+          <i class="fas fa-wallet"></i>
+          <div class="summary-content">
+            <span class="summary-value">{{ comptes.length }}</span>
+            <span class="summary-label">Compte(s)</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-coins"></i>
+          <div class="summary-content">
+            <span class="summary-value" [class.positive]="getTotalSolde() >= 0" [class.negative]="getTotalSolde() < 0">
+              {{ getTotalSolde() | number:'1.2-2' }} €
+            </span>
+            <span class="summary-label">Solde Total</span>
+          </div>
+        </div>
+        <a [routerLink]="['/comptes/new']" [queryParams]="{clientId: client.id}" class="btn btn-primary btn-add-account">
+          <i class="fas fa-plus"></i>
+          Nouveau Compte
+        </a>
+      </div>
+
+      <!-- Liste des Comptes -->
+      <div class="accounts-section">
+        <div class="section-header">
+          <h2><i class="fas fa-piggy-bank"></i> Comptes Bancaires</h2>
+        </div>
+        
+        @if (comptes.length > 0) {
+          <div class="accounts-tabs">
+            @for (compte of comptes; track compte.numeroCompte) {
+              <button 
+                class="account-tab" 
+                [class.active]="selectedCompte?.numeroCompte === compte.numeroCompte"
+                [class.epargne]="compte.typeCompte === 'EPARGNE'"
+                [class.courant]="compte.typeCompte === 'COURANT'"
+                (click)="selectCompte(compte)"
+              >
+                <i class="fas" [class.fa-piggy-bank]="compte.typeCompte === 'EPARGNE'" [class.fa-wallet]="compte.typeCompte === 'COURANT'"></i>
+                <span class="tab-type">{{ compte.typeCompte }}</span>
+                <span class="tab-number">{{ compte.numeroCompte }}</span>
+                <span class="tab-balance" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
+                  {{ compte.solde | number:'1.2-2' }} €
+                </span>
+              </button>
+            }
+          </div>
+
+          @if (selectedCompte) {
+            <div class="account-detail">
+              <div class="account-header">
+                <div class="account-info">
+                  <h3>{{ selectedCompte.typeCompte === 'EPARGNE' ? 'Compte Épargne' : 'Compte Courant' }}</h3>
+                  <span class="account-number">{{ selectedCompte.numeroCompte }}</span>
+                </div>
+                <div class="account-balance" [class.positive]="selectedCompte.solde >= 0" [class.negative]="selectedCompte.solde < 0">
+                  {{ selectedCompte.solde | number:'1.2-2' }} €
+                </div>
+              </div>
+
+              <div class="account-meta">
+                <span><i class="fas fa-calendar"></i> Ouvert le {{ selectedCompte.dateCreation | date:'dd MMM yyyy' }}</span>
+              </div>
+
+              <div class="account-actions">
+                <a [routerLink]="['/transactions/new']" [queryParams]="{compte: selectedCompte.numeroCompte, type: 'DEPOT'}" class="btn btn-success btn-sm">
+                  <i class="fas fa-plus"></i> Dépôt
+                </a>
+                <a [routerLink]="['/transactions/new']" [queryParams]="{compte: selectedCompte.numeroCompte, type: 'RETRAIT'}" class="btn btn-warning btn-sm">
+                  <i class="fas fa-minus"></i> Retrait
+                </a>
+                <a [routerLink]="['/transactions/new']" [queryParams]="{compte: selectedCompte.numeroCompte, type: 'VIREMENT'}" class="btn btn-primary btn-sm">
+                  <i class="fas fa-exchange-alt"></i> Virement
+                </a>
+                <button class="btn btn-danger btn-sm" (click)="confirmDeleteCompte(selectedCompte)">
+                  <i class="fas fa-trash"></i> Supprimer
+                </button>
+              </div>
+
+              <div class="transactions-section">
+                <h4>Historique des Transactions</h4>
+                @if (transactions.length > 0) {
+                  <div class="transactions-list">
+                    @for (txn of transactions; track txn.id) {
+                      <div class="transaction-item" [class.depot]="txn.type === 'DEPOT'" [class.retrait]="txn.type === 'RETRAIT'" [class.virement]="txn.type === 'VIREMENT'">
+                        <div class="txn-icon">
+                          <i class="fas" [class]="getTransactionIcon(txn.type)"></i>
+                        </div>
+                        <div class="txn-info">
+                          <span class="txn-description">{{ txn.description }}</span>
+                          <span class="txn-date">{{ txn.date | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="txn-amount" [class.credit]="txn.type === 'DEPOT'" [class.debit]="txn.type !== 'DEPOT'">
+                          {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="no-transactions">
+                    <i class="fas fa-receipt"></i>
+                    <p>Aucune transaction pour ce compte</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="no-accounts">
+            <i class="fas fa-credit-card"></i>
+            <h3>Aucun compte bancaire</h3>
+            <p>Ce client n'a pas encore de compte bancaire</p>
+            <a [routerLink]="['/comptes/new']" [queryParams]="{clientId: client.id}" class="btn btn-primary">
+              Créer un compte
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal suppression client -->
+  @if (showDeleteModal) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="fas fa-exclamation-triangle"></i> Supprimer le client</h3>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer <strong>{{ client.prenom }} {{ client.nom }}</strong> ?</p>
+          <p class="warning">Cette action supprimera également tous ses comptes et transactions.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+          <button class="btn btn-danger" (click)="deleteClient()">
+            <i class="fas fa-trash"></i> Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal suppression compte -->
+  @if (showDeleteCompteModal && compteToDelete) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="fas fa-exclamation-triangle"></i> Supprimer le compte</h3>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer le compte <strong>{{ compteToDelete.numeroCompte }}</strong> ?</p>
+          <p class="warning">Le solde actuel est de {{ compteToDelete.solde | number:'1.2-2' }} €. Toutes les transactions seront également supprimées.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+          <button class="btn btn-danger" (click)="deleteCompte()">
+            <i class="fas fa-trash"></i> Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

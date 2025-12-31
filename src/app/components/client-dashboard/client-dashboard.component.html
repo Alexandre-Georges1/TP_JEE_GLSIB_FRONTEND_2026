@@ -1,0 +1,136 @@
+<div class="client-page">
+  <!-- Header -->
+  <header class="client-header">
+    <div class="header-left">
+      <img src="logo.png" alt="EgaBank" class="header-logo">
+      <div class="header-title">
+        <h1>EgaBank</h1>
+        <span>Espace Client</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ userName() }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="client-content">
+    @if (compte()) {
+      <!-- Carte du compte -->
+      <section class="account-card">
+        <div class="account-header">
+          <div class="account-type" [class.epargne]="compte()!.typeCompte === 'EPARGNE'" [class.courant]="compte()!.typeCompte === 'COURANT'">
+            <i class="fas" [class.fa-piggy-bank]="compte()!.typeCompte === 'EPARGNE'" [class.fa-wallet]="compte()!.typeCompte === 'COURANT'"></i>
+            <span>Compte {{ compte()!.typeCompte === 'EPARGNE' ? 'Épargne' : 'Courant' }}</span>
+          </div>
+          <span class="account-number">{{ compte()!.numeroCompte }}</span>
+        </div>
+        <div class="account-balance">
+          <span class="balance-label">Solde disponible</span>
+          <span class="balance-amount">{{ formatMontant(compte()!.solde) }}</span>
+        </div>
+        <div class="account-footer">
+          <span class="account-date">
+            <i class="fas fa-calendar-alt"></i>
+            Ouvert le {{ formatDate(compte()!.dateCreation) | slice:0:12 }}
+          </span>
+        </div>
+      </section>
+
+      <!-- Actions rapides -->
+      <section class="quick-actions">
+        <h2><i class="fas fa-bolt"></i> Actions rapides</h2>
+        <div class="actions-grid">
+          <a [routerLink]="['/client/transaction']" [queryParams]="{type: 'DEPOT', compte: compte()!.numeroCompte}" class="action-card depot">
+            <div class="action-icon">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+            <span>Dépôt</span>
+          </a>
+          <a [routerLink]="['/client/transaction']" [queryParams]="{type: 'RETRAIT', compte: compte()!.numeroCompte}" class="action-card retrait">
+            <div class="action-icon">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <span>Retrait</span>
+          </a>
+          <a [routerLink]="['/client/transaction']" [queryParams]="{type: 'VIREMENT', compte: compte()!.numeroCompte}" class="action-card virement">
+            <div class="action-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <span>Virement</span>
+          </a>
+          <a [routerLink]="['/client/historique']" class="action-card historique">
+            <div class="action-icon">
+              <i class="fas fa-history"></i>
+            </div>
+            <span>Historique</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Dernières transactions -->
+      <section class="recent-transactions">
+        <div class="section-header">
+          <h2><i class="fas fa-clock"></i> Dernières transactions</h2>
+          <a [routerLink]="['/client/historique']" class="view-all">
+            Voir tout <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        @if (transactions().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>Aucune transaction récente</p>
+          </div>
+        } @else {
+          <div class="transactions-list">
+            @for (transaction of transactions(); track transaction.id) {
+              <div class="transaction-item" [class]="getTransactionClass(transaction)">
+                <div class="txn-icon">
+                  @switch (transaction.type) {
+                    @case ('DEPOT') {
+                      <i class="fas fa-arrow-down"></i>
+                    }
+                    @case ('RETRAIT') {
+                      <i class="fas fa-arrow-up"></i>
+                    }
+                    @case ('VIREMENT') {
+                      <i class="fas fa-exchange-alt"></i>
+                    }
+                  }
+                </div>
+                <div class="txn-info">
+                  <span class="txn-type">
+                    @switch (transaction.type) {
+                      @case ('DEPOT') { Dépôt }
+                      @case ('RETRAIT') { Retrait }
+                      @case ('VIREMENT') { Virement }
+                    }
+                  </span>
+                  <span class="txn-date">{{ formatDate(transaction.date) }}</span>
+                </div>
+                <div class="txn-amount" [class]="getTransactionClass(transaction)">
+                  {{ getTransactionSign(transaction) }}{{ formatMontant(transaction.montant) }}
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    } @else {
+      <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h2>Compte non trouvé</h2>
+        <p>Impossible de charger les informations de votre compte.</p>
+        <button class="btn-primary" (click)="logout()">Retour à la connexion</button>
+      </div>
+    }
+  </main>
+</div>

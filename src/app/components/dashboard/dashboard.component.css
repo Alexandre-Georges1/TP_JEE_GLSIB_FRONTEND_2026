@@ -1,0 +1,482 @@
+.dashboard-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-section h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-section p {
+  margin: 0.5rem 0 0 0;
+  color: var(--text-secondary);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.stat-card.clients::before {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.stat-card.comptes::before {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.stat-card.solde::before {
+  background: linear-gradient(90deg, #10b981, #14b8a6);
+}
+
+.stat-card.transactions::before {
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-card.clients .stat-icon {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1));
+  color: #22c55e;
+}
+
+.stat-card.comptes .stat-icon {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1));
+  color: #22c55e;
+}
+
+.stat-card.solde .stat-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(20, 184, 166, 0.1));
+  color: #10b981;
+}
+
+.stat-card.transactions .stat-icon {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1));
+  color: #f59e0b;
+}
+
+.stat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.stat-breakdown {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.stat-breakdown span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-link {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.stat-link:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+}
+
+.card-header h2 i {
+  color: var(--primary);
+}
+
+.view-all {
+  font-size: 0.9rem;
+  color: var(--primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.view-all:hover {
+  gap: 0.75rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+/* Transactions List */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.transaction-item:hover {
+  background: var(--bg-secondary);
+}
+
+.txn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transaction-item.depot .txn-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.transaction-item.retrait .txn-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.transaction-item.virement .txn-icon {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--primary);
+}
+
+.txn-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.txn-description {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.txn-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.txn-amount {
+  font-weight: 600;
+}
+
+.txn-amount.credit {
+  color: var(--success);
+}
+
+.txn-amount.debit {
+  color: var(--danger);
+}
+
+/* Clients List */
+.clients-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.client-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.client-item:hover {
+  background: var(--bg-secondary);
+}
+
+.client-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.client-avatar.male {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--primary);
+}
+
+.client-avatar.female {
+  background: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
+}
+
+.client-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.client-email {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.client-item > i {
+  color: var(--text-muted);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0 0 1rem 0;
+}
+
+/* Quick Actions */
+.quick-actions {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+.quick-actions h3 {
+  margin: 0 0 1.25rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.action-icon.clients {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.action-icon.comptes {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.action-icon.depot {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.action-icon.retrait {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.action-icon.virement {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.action-icon.historique {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: white;
+}
+
+.action-card span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

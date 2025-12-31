@@ -1,0 +1,429 @@
+.client-page {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* Header */
+.client-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: linear-gradient(180deg, #166534 0%, #14532d 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  background: white;
+  border-radius: 12px;
+  padding: 5px;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-title span {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.user-info i {
+  font-size: 1.5rem;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: transparent;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Main Content */
+.client-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Account Card */
+.account-card {
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  border-radius: 20px;
+  padding: 1.75rem;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(22, 101, 52, 0.3);
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.account-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.account-number {
+  font-family: monospace;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.account-balance {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.balance-label {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.balance-amount {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.account-footer {
+  text-align: center;
+}
+
+.account-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 2rem;
+}
+
+.quick-actions h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.quick-actions h2 i {
+  color: #22c55e;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #1e293b;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.action-card.depot .action-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.action-card.retrait .action-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.action-card.virement .action-icon {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.action-card.historique .action-icon {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+}
+
+/* Recent Transactions */
+.recent-transactions {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.section-header h2 i {
+  color: #22c55e;
+}
+
+.view-all {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.view-all:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #94a3b8;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.transaction-item:hover {
+  background: #f1f5f9;
+}
+
+.txn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.transaction-item.credit .txn-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.transaction-item.debit .txn-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.txn-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.txn-type {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.txn-date {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.txn-amount {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.txn-amount.credit {
+  color: #10b981;
+}
+
+.txn-amount.debit {
+  color: #ef4444;
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.error-state i {
+  font-size: 4rem;
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.error-state h2 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+}
+
+.error-state p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .client-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .client-content {
+    padding: 1rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .balance-amount {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logout-btn span {
+    display: none;
+  }
+
+  .user-info span {
+    display: none;
+  }
+}

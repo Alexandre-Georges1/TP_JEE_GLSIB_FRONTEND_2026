@@ -1,0 +1,127 @@
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <a routerLink="/comptes" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="header-text">
+        <h1>
+          <i class="fas fa-credit-card"></i>
+          Nouveau Compte Bancaire
+        </h1>
+        <p>Créez un nouveau compte pour un client</p>
+      </div>
+    </div>
+
+    @if (submitError) {
+      <div class="error-banner">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ submitError }}
+      </div>
+    }
+
+    @if (clients.length === 0) {
+      <div class="no-clients-warning">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <strong>Aucun client disponible</strong>
+          <p>Vous devez d'abord créer un client avant de pouvoir ouvrir un compte.</p>
+          <a routerLink="/clients/new" class="btn btn-primary btn-sm">
+            <i class="fas fa-user-plus"></i> Créer un client
+          </a>
+        </div>
+      </div>
+    } @else {
+      <form [formGroup]="compteForm" (ngSubmit)="onSubmit()" class="compte-form">
+        <div class="form-section">
+          <h3><i class="fas fa-user"></i> Titulaire du Compte</h3>
+          
+          <div class="form-group">
+            <label for="clientId">Sélectionner un client *</label>
+            <select 
+              id="clientId" 
+              formControlName="clientId"
+              [class.invalid]="isFieldInvalid('clientId')"
+            >
+              <option value="">Choisissez un client</option>
+              @for (client of clients; track client.id) {
+                <option [value]="client.id">{{ client.prenom }} {{ client.nom }} - {{ client.email }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('clientId')) {
+              <span class="error-message">{{ getFieldError('clientId') }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-cog"></i> Paramètres du Compte</h3>
+          
+          <div class="form-group">
+            <label>Type de compte *</label>
+            <div class="type-selector">
+              <label class="type-option" [class.selected]="compteForm.get('typeCompte')?.value === 'COURANT'">
+                <input type="radio" formControlName="typeCompte" value="COURANT">
+                <div class="type-content">
+                  <div class="type-icon courant">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <div class="type-info">
+                    <strong>Compte Courant</strong>
+                    <span>Pour les opérations quotidiennes</span>
+                  </div>
+                </div>
+              </label>
+              <label class="type-option" [class.selected]="compteForm.get('typeCompte')?.value === 'EPARGNE'">
+                <input type="radio" formControlName="typeCompte" value="EPARGNE">
+                <div class="type-content">
+                  <div class="type-icon epargne">
+                    <i class="fas fa-piggy-bank"></i>
+                  </div>
+                  <div class="type-info">
+                    <strong>Compte Épargne</strong>
+                    <span>Pour faire fructifier votre argent</span>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="soldeInitial">Dépôt initial (€)</label>
+            <div class="amount-input">
+              <span class="currency">€</span>
+              <input 
+                type="number" 
+                id="soldeInitial" 
+                formControlName="soldeInitial"
+                [class.invalid]="isFieldInvalid('soldeInitial')"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+              >
+            </div>
+            @if (isFieldInvalid('soldeInitial')) {
+              <span class="error-message">{{ getFieldError('soldeInitial') }}</span>
+            }
+            <span class="hint">Montant optionnel pour le dépôt d'ouverture</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/comptes" class="btn btn-secondary">
+            Annuler
+          </a>
+          <button type="submit" class="btn btn-primary" [disabled]="loading || clients.length === 0">
+            @if (loading) {
+              <i class="fas fa-spinner fa-spin"></i>
+              Création...
+            } @else {
+              Créer le compte
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

@@ -1,0 +1,150 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-users"></i>
+        Gestion des Clients
+      </h1>
+      <p class="subtitle">Liste de tous les clients de la banque</p>
+    </div>
+    <a routerLink="/clients/new" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nouveau Client
+    </a>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        placeholder="Rechercher par nom, prénom, email ou téléphone..."
+        class="search-input"
+      >
+    </div>
+    <div class="results-count">
+      {{ filteredClients.length }} client(s) trouvé(s)
+    </div>
+  </div>
+
+  <div class="clients-grid">
+    @for (client of filteredClients; track client.id) {
+      <div class="client-card">
+        <div class="client-header">
+          <div class="avatar" [class.male]="client.sexe === 'M'" [class.female]="client.sexe === 'F'">
+            <i class="fas" [class.fa-mars]="client.sexe === 'M'" [class.fa-venus]="client.sexe === 'F'"></i>
+          </div>
+          <div class="client-info">
+            <h3>{{ client.prenom }} {{ client.nom }}</h3>
+            <span class="client-id">{{ client.id }}</span>
+          </div>
+          <div class="client-actions">
+            <a [routerLink]="['/clients', client.id]" class="btn-icon" title="Voir détails">
+              <i class="fas fa-eye"></i>
+            </a>
+            <a [routerLink]="['/clients', client.id, 'edit']" class="btn-icon" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </a>
+            <button class="btn-icon delete" (click)="confirmDelete(client)" title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="client-details">
+          <div class="detail-row">
+            <i class="fas fa-envelope"></i>
+            <span>{{ client.email }}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-phone"></i>
+            <span>{{ client.telephone }}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ client.adresse }}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-birthday-cake"></i>
+            <span>{{ getAge(client.dateNaissance) }} ans</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-flag"></i>
+            <span>{{ client.nationalite }}</span>
+          </div>
+        </div>
+
+        <div class="client-accounts">
+          <div class="accounts-header">
+            <h4>Comptes Bancaires</h4>
+            <a [routerLink]="['/comptes/new']" [queryParams]="{clientId: client.id}" class="btn-small">
+              <i class="fas fa-plus"></i>
+            </a>
+          </div>
+          
+          @if (getClientComptes(client.id).length > 0) {
+            <div class="accounts-list">
+              @for (compte of getClientComptes(client.id); track compte.numeroCompte) {
+                <div class="account-item" [class.epargne]="compte.typeCompte === 'EPARGNE'" [class.courant]="compte.typeCompte === 'COURANT'">
+                  <div class="account-type">
+                    <i class="fas" [class.fa-piggy-bank]="compte.typeCompte === 'EPARGNE'" [class.fa-wallet]="compte.typeCompte === 'COURANT'"></i>
+                    {{ compte.typeCompte }}
+                  </div>
+                  <div class="account-number">{{ compte.numeroCompte }}</div>
+                  <div class="account-balance" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
+                    {{ compte.solde | number:'1.2-2' }} €
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="total-balance">
+              <span>Solde Total:</span>
+              <strong [class.positive]="getTotalSolde(client.id) >= 0" [class.negative]="getTotalSolde(client.id) < 0">
+                {{ getTotalSolde(client.id) | number:'1.2-2' }} €
+              </strong>
+            </div>
+          } @else {
+            <div class="no-accounts">
+              <i class="fas fa-info-circle"></i>
+              Aucun compte bancaire
+            </div>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <i class="fas fa-users-slash"></i>
+        <h3>Aucun client trouvé</h3>
+        <p>Commencez par créer un nouveau client</p>
+        <a routerLink="/clients/new" class="btn btn-primary">
+          <i class="fas fa-plus"></i>
+          Créer un client
+        </a>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+@if (showDeleteModal && clientToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Confirmer la suppression</h3>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer le client <strong>{{ clientToDelete.prenom }} {{ clientToDelete.nom }}</strong> ?</p>
+        <p class="warning">Cette action supprimera également tous ses comptes bancaires et l'historique des transactions associées.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+        <button class="btn btn-danger" (click)="deleteClient()">
+          <i class="fas fa-trash"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
