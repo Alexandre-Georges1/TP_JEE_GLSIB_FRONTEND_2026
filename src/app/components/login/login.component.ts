@@ -63,7 +63,7 @@ export class LoginComponent {
 
   private redirectAfterLogin(): void {
     if (this.authService.isAdmin) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/client']);
     }

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClientService } from '../../services/client.service';
-import { Client } from '../../models/client.model';
 
 @Component({
   selector: 'app-client-form',
@@ -49,8 +48,8 @@ export class ClientFormComponent implements OnInit {
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
       dnaissance: ['', [Validators.required]],
-      sexe: ['M', [Validators.required]],
-      adresse: ['', [Validators.required, Validators.minLength(5)]],
+      adresse: ['', [Validators.required]],
+      sexe: ['', [Validators.required]],
       tel: ['', [Validators.required, Validators.pattern(/^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/)]],
       courriel: ['', [Validators.required, Validators.email]],
       nationalite: ['', [Validators.required]]
@@ -76,7 +75,7 @@ export class ClientFormComponent implements OnInit {
           nationalite: client.nationalite
         });
       } else {
-        this.router.navigate(['/clients']);
+        this.router.navigate(['/dashboard/clients']);
       }
     });
   }
@@ -93,7 +92,7 @@ export class ClientFormComponent implements OnInit {
     if (this.isEditMode && this.clientId) {
       this.clientService.updateClient(this.clientId, this.clientForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/clients']);
+          this.router.navigate(['/dashboard/clients']);
         },
         error: (error) => {
           console.error('Erreur lors de la mise à jour:', error);
@@ -104,7 +103,7 @@ export class ClientFormComponent implements OnInit {
     } else {
       this.clientService.createClient(this.clientForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/clients']);
+          this.router.navigate(['/dashboard/clients']);
         },
         error: (error) => {
           console.error('Erreur lors de la création:', error);

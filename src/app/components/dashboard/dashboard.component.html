@@ -5,11 +5,11 @@
       <p>Tableau de bord de gestion bancaire</p>
     </div>
     <div class="header-actions">
-      <a routerLink="/clients/new" class="btn btn-primary">
+      <a routerLink="/dashboard/clients/new" class="btn btn-primary">
         <i class="fas fa-user-plus"></i>
         Nouveau Client
       </a>
-      <a routerLink="/transactions/new" class="btn btn-secondary">
+      <a routerLink="/dashboard/transactions/new" class="btn btn-secondary">
         <i class="fas fa-exchange-alt"></i>
         Transaction
       </a>
@@ -26,7 +26,7 @@
         <span class="stat-value">{{ stats.totalClients }}</span>
         <span class="stat-label">Clients</span>
       </div>
-      <a routerLink="/clients" class="stat-link">
+      <a routerLink="/dashboard/clients" class="stat-link">
         <i class="fas fa-arrow-right"></i>
       </a>
     </div>
@@ -43,7 +43,7 @@
           <span><i class="fas fa-wallet"></i> {{ stats.comptesCourant }} Courant</span>
         </div>
       </div>
-      <a routerLink="/comptes" class="stat-link">
+      <a routerLink="/dashboard/comptes" class="stat-link">
         <i class="fas fa-arrow-right"></i>
       </a>
     </div>
@@ -66,7 +66,7 @@
         <span class="stat-value">{{ stats.totalTransactions }}</span>
         <span class="stat-label">Transactions</span>
       </div>
-      <a routerLink="/transactions" class="stat-link">
+      <a routerLink="/dashboard/transactions" class="stat-link">
         <i class="fas fa-arrow-right"></i>
       </a>
     </div>
@@ -77,7 +77,7 @@
     <div class="dashboard-card">
       <div class="card-header">
         <h2><i class="fas fa-history"></i> Dernières Transactions</h2>
-        <a routerLink="/transactions" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+        <a routerLink="/dashboard/transactions" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
       </div>
       <div class="card-body">
         @if (recentTransactions.length > 0) {
@@ -101,7 +101,7 @@
           <div class="empty-state">
             <i class="fas fa-receipt"></i>
             <p>Aucune transaction récente</p>
-            <a routerLink="/transactions/new" class="btn btn-primary btn-sm">
+            <a routerLink="/dashboard/transactions/new" class="btn btn-primary btn-sm">
               <i class="fas fa-plus"></i> Nouvelle transaction
             </a>
           </div>
@@ -113,13 +113,13 @@
     <div class="dashboard-card">
       <div class="card-header">
         <h2><i class="fas fa-user-clock"></i> Derniers Clients</h2>
-        <a routerLink="/clients" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+        <a routerLink="/dashboard/clients" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
       </div>
       <div class="card-body">
         @if (recentClients.length > 0) {
           <div class="clients-list">
             @for (client of recentClients; track client.id) {
-              <a [routerLink]="['/clients', client.id]" class="client-item">
+              <a [routerLink]="['/dashboard/clients', client.id]" class="client-item">
                 <div class="client-avatar" [class.male]="client.sexe === 'M'" [class.female]="client.sexe === 'F'">
                   <i class="fas" [class.fa-mars]="client.sexe === 'M'" [class.fa-venus]="client.sexe === 'F'"></i>
                 </div>
@@ -135,7 +135,7 @@
           <div class="empty-state">
             <i class="fas fa-users"></i>
             <p>Aucun client enregistré</p>
-            <a routerLink="/clients/new" class="btn btn-primary btn-sm">
+            <a routerLink="/dashboard/clients/new" class="btn btn-primary btn-sm">
               <i class="fas fa-plus"></i> Nouveau client
             </a>
           </div>
@@ -148,37 +148,37 @@
   <div class="quick-actions">
     <h3>Actions Rapides</h3>
     <div class="actions-grid">
-      <a routerLink="/clients/new" class="action-card">
+      <a routerLink="/dashboard/clients/new" class="action-card">
         <div class="action-icon clients">
           <i class="fas fa-user-plus"></i>
         </div>
         <span>Nouveau Client</span>
       </a>
-      <a routerLink="/comptes/new" class="action-card">
+      <a routerLink="/dashboard/comptes/new" class="action-card">
         <div class="action-icon comptes">
           <i class="fas fa-plus-circle"></i>
         </div>
         <span>Ouvrir un Compte</span>
       </a>
-      <a routerLink="/transactions/new" [queryParams]="{type: 'DEPOT'}" class="action-card">
+      <a routerLink="/dashboard/transactions/new" [queryParams]="{type: 'DEPOT'}" class="action-card">
         <div class="action-icon depot">
           <i class="fas fa-arrow-down"></i>
         </div>
         <span>Dépôt</span>
       </a>
-      <a routerLink="/transactions/new" [queryParams]="{type: 'RETRAIT'}" class="action-card">
+      <a routerLink="/dashboard/transactions/new" [queryParams]="{type: 'RETRAIT'}" class="action-card">
         <div class="action-icon retrait">
           <i class="fas fa-arrow-up"></i>
         </div>
         <span>Retrait</span>
       </a>
-      <a routerLink="/transactions/new" [queryParams]="{type: 'VIREMENT'}" class="action-card">
+      <a routerLink="/dashboard/transactions/new" [queryParams]="{type: 'VIREMENT'}" class="action-card">
         <div class="action-icon virement">
           <i class="fas fa-exchange-alt"></i>
         </div>
         <span>Virement</span>
       </a>
-      <a routerLink="/transactions" class="action-card">
+      <a routerLink="/dashboard/transactions" class="action-card">
         <div class="action-icon historique">
           <i class="fas fa-history"></i>
         </div>

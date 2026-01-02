@@ -77,9 +77,9 @@ export class CompteFormComponent implements OnInit {
       next: () => {
         // Rediriger vers le client ou la liste des comptes
         if (this.preselectedClientId) {
-          this.router.navigate(['/clients', this.preselectedClientId]);
+          this.router.navigate(['/dashboard/clients', this.preselectedClientId]);
         } else {
-          this.router.navigate(['/comptes']);
+          this.router.navigate(['/dashboard/comptes']);
         }
       },
       error: (error) => {

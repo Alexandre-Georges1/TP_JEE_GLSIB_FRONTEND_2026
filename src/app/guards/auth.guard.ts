@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
     }
 
     if (requiredRole === 'CLIENT' && !this.authService.isClient) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/dashboard']);
       return false;
     }
 

@@ -46,7 +46,7 @@ export class ClientDetailComponent implements OnInit {
         this.client = client;
         this.loadComptes(id);
       } else {
-        this.router.navigate(['/clients']);
+        this.router.navigate(['/dashboard/clients']);
       }
     });
   }
@@ -100,11 +100,11 @@ export class ClientDetailComponent implements OnInit {
       this.compteService.deleteComptesByClient(String(this.client.id));
       this.clientService.deleteClient(this.client.id).subscribe({
         next: () => {
-          this.router.navigate(['/clients']);
+          this.router.navigate(['/dashboard/clients']);
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
-          this.router.navigate(['/clients']);
+          this.router.navigate(['/dashboard/clients']);
         }
       });
     }

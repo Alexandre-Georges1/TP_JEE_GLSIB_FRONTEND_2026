@@ -14,7 +14,7 @@
     <nav class="sidebar-nav">
       <div class="nav-section">
         <span class="nav-section-title">MENU PRINCIPAL</span>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
           <i class="fas fa-home"></i>
           <span>Tableau de bord</span>
         </a>
@@ -22,15 +22,15 @@
 
       <div class="nav-section">
         <span class="nav-section-title">GESTION</span>
-        <a routerLink="/clients" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/clients" routerLinkActive="active" class="nav-item">
           <i class="fas fa-users"></i>
           <span>Clients</span>
         </a>
-        <a routerLink="/comptes" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/comptes" routerLinkActive="active" class="nav-item">
           <i class="fas fa-credit-card"></i>
           <span>Comptes</span>
         </a>
-        <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/transactions" routerLinkActive="active" class="nav-item">
           <i class="fas fa-history"></i>
           <span>Transactions</span>
         </a>
@@ -38,15 +38,15 @@
 
       <div class="nav-section">
         <span class="nav-section-title">OPÉRATIONS</span>
-        <a routerLink="/clients/new" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/clients/new" routerLinkActive="active" class="nav-item">
           <i class="fas fa-user-plus"></i>
           <span>Nouveau Client</span>
         </a>
-        <a routerLink="/comptes/new" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/comptes/new" routerLinkActive="active" class="nav-item">
           <i class="fas fa-plus-circle"></i>
           <span>Ouvrir un Compte</span>
         </a>
-        <a routerLink="/transactions/new" routerLinkActive="active" class="nav-item">
+        <a routerLink="/dashboard/transactions/new" routerLinkActive="active" class="nav-item">
           <i class="fas fa-exchange-alt"></i>
           <span>Transaction</span>
         </a>

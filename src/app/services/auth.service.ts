@@ -14,20 +14,16 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   private platformId = inject(PLATFORM_ID);
 
-  // Code admin prédéfini
-  private readonly ADMIN_CODE = 'EGABANK2024';
+  private readonly ADMIN_CODE = 'EGABANK2026';
   
   constructor(
     private router: Router,
     private compteService: CompteService,
     private clientService: ClientService
   ) {
-    // Restaurer la session si elle existe
+    // L'utilisateur doit se connecter à chaque fois
     if (isPlatformBrowser(this.platformId)) {
-      const savedUser = localStorage.getItem('egabank_user');
-      if (savedUser) {
-        this.currentUserSubject.next(JSON.parse(savedUser));
-      }
+      localStorage.removeItem('egabank_user');
     }
   }
 

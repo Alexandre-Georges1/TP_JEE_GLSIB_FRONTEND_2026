@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Client } from '../../models/client.model';
 import { Transaction } from '../../models/transaction.model';
 import { ClientService } from '../../services/client.service';
@@ -14,7 +15,7 @@ import { TransactionService } from '../../services/transaction.service';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   stats = {
     totalClients: 0,
     totalComptes: 0,
@@ -26,6 +27,7 @@ export class DashboardComponent implements OnInit {
 
   recentTransactions: Transaction[] = [];
   recentClients: Client[] = [];
+  private subscriptions = new Subscription();
 
   constructor(
     private clientService: ClientService,
@@ -39,30 +41,40 @@ export class DashboardComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.clientService.getClients().subscribe(clients => {
-      this.stats.totalClients = clients.length;
-      this.recentClients = clients.slice(-5).reverse();
-    });
+    this.subscriptions.add(
+      this.clientService.getClients().subscribe(clients => {
+        this.stats.totalClients = clients.length;
+        this.recentClients = clients.slice(-5).reverse();
+      })
+    );
 
-    this.compteService.getComptesCount().subscribe(counts => {
-      this.stats.totalComptes = counts.total;
-      this.stats.comptesEpargne = counts.epargne;
-      this.stats.comptesCourant = counts.courant;
-    });
+    this.subscriptions.add(
+      this.compteService.getComptesCount().subscribe(counts => {
+        this.stats.totalComptes = counts.total;
+        this.stats.comptesEpargne = counts.epargne;
+        this.stats.comptesCourant = counts.courant;
+      })
+    );
 
-    this.compteService.getTotalSolde().subscribe(solde => {
-      this.stats.soldeTotal = solde;
-    });
+    this.subscriptions.add(
+      this.compteService.getTotalSolde().subscribe(solde => {
+        this.stats.soldeTotal = solde;
+      })
+    );
 
-    this.transactionService.getTransactions().subscribe(txns => {
-      this.stats.totalTransactions = txns.length;
-    });
+    this.subscriptions.add(
+      this.transactionService.getTransactions().subscribe(txns => {
+        this.stats.totalTransactions = txns.length;
+      })
+    );
   }
 
   loadRecentData(): void {
-    this.transactionService.getRecentTransactions(5).subscribe(txns => {
-      this.recentTransactions = txns;
-    });
+    this.subscriptions.add(
+      this.transactionService.getRecentTransactions(5).subscribe(txns => {
+        this.recentTransactions = txns;
+      })
+    );
   }
 
   getTransactionIcon(type: string): string {
@@ -72,5 +84,9 @@ export class DashboardComponent implements OnInit {
       case 'VIREMENT': return 'fa-exchange-alt';
       default: return 'fa-circle';
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

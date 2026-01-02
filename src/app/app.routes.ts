@@ -3,6 +3,13 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Redirection par défaut vers login
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+  
   // Page de connexion
   {
     path: 'login',
@@ -32,7 +39,7 @@ export const routes: Routes = [
 
   // Espace Admin (Dashboard principal)
   {
-    path: '',
+    path: 'dashboard',
     component: LayoutComponent,
     canActivate: [AuthGuard],
     data: { role: 'ADMIN' },
@@ -75,6 +82,7 @@ export const routes: Routes = [
       }
     ]
   },
+  // Redirection par défaut vers login pour toutes les routes inconnues
   {
     path: '**',
     redirectTo: 'login'

@@ -2,13 +2,12 @@
   <div class="page-header">
     <div class="header-content">
       <h1>
-        <i class="fas fa-history"></i>
         Historique des Transactions
       </h1>
       <p class="subtitle">Consultez et filtrez toutes les opérations bancaires</p>
     </div>
     <div class="header-actions">
-      <a routerLink="/transactions/new" class="btn btn-primary">
+      <a routerLink="/dashboard/transactions/new" class="btn btn-primary">
         <i class="fas fa-plus"></i>
         Nouvelle Transaction
       </a>
@@ -151,7 +150,7 @@
           }
         </p>
         @if (!selectedCompte && !selectedType && !dateDebut && !dateFin) {
-          <a routerLink="/transactions/new" class="btn btn-primary">
+          <a routerLink="/dashboard/transactions/new" class="btn btn-primary">
             Effectuer une transaction
           </a>
         }

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Compte } from '../../models/compte.model';
 import { TransactionFormData } from '../../models/transaction.model';
 import { TransactionService } from '../../services/transaction.service';
@@ -14,7 +15,7 @@ import { CompteService } from '../../services/compte.service';
   templateUrl: './transaction-form.component.html',
   styleUrl: './transaction-form.component.css'
 })
-export class TransactionFormComponent implements OnInit {
+export class TransactionFormComponent implements OnInit, OnDestroy {
   transactionForm!: FormGroup;
   comptes: Compte[] = [];
   comptesDestination: Compte[] = [];
@@ -23,6 +24,7 @@ export class TransactionFormComponent implements OnInit {
   submitError = '';
   submitSuccess = '';
   preselectedType: string | null = null;
+  private comptesSubscription?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -75,8 +77,13 @@ export class TransactionFormComponent implements OnInit {
   }
 
   private loadComptes(): void {
-    this.compteService.getComptes().subscribe(comptes => {
+    this.comptesSubscription = this.compteService.getComptes().subscribe(comptes => {
       this.comptes = comptes;
+      // Mettre à jour le compte sélectionné avec les nouvelles données
+      if (this.selectedCompte) {
+        this.selectedCompte = this.comptes.find(c => c.id === this.selectedCompte?.id) || null;
+        this.comptesDestination = this.comptes.filter(c => c.id !== this.selectedCompte?.id);
+      }
     });
   }
 
@@ -111,26 +118,14 @@ export class TransactionFormComponent implements OnInit {
         if (result.success) {
           this.submitSuccess = result.message;
           
-          // Rafraîchir les infos du compte
-          this.loadComptes();
+          // Rediriger vers l'historique des transactions après succès
           setTimeout(() => {
-            this.onCompteChange();
-          }, 100);
-          
-          // Reset le formulaire partiellement
-          this.transactionForm.patchValue({
-            montant: null,
-            compteDestinationId: null
-          });
-          
-          // Optionnel : effacer le message après quelques secondes
-          setTimeout(() => {
-            this.submitSuccess = '';
-          }, 3000);
+            this.router.navigate(['/dashboard/clients']);
+          }, 1500);
         } else {
           this.submitError = result.message;
+          this.loading = false;
         }
-        this.loading = false;
       },
       error: () => {
         this.submitError = 'Une erreur est survenue. Veuillez réessayer.';
@@ -162,5 +157,11 @@ export class TransactionFormComponent implements OnInit {
 
   get isVirement(): boolean {
     return this.transactionForm.get('type')?.value === 'VIREMENT';
+  }
+
+  ngOnDestroy(): void {
+    if (this.comptesSubscription) {
+      this.comptesSubscription.unsubscribe();
+    }
   }
 }

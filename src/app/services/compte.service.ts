@@ -34,6 +34,10 @@ export class CompteService {
     });
   }
 
+  refreshComptes(): void {
+    this.loadComptes();
+  }
+
   private loadFromStorage(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     

@@ -76,7 +76,10 @@ export class TransactionService {
   deposer(compteId: number, montant: number): Observable<{ success: boolean; message: string }> {
     const body: DeposerRetirerRequest = { montant };
     return this.http.post(`${this.apiUrl}/${compteId}/deposer`, body).pipe(
-      tap(() => this.refreshTransactions()),
+      tap(() => {
+        this.compteService.refreshComptes();
+        this.refreshTransactions();
+      }),
       map(() => ({ success: true, message: 'Dépôt effectué avec succès' })),
       catchError(error => {
         console.error('Erreur lors du dépôt:', error);
@@ -89,7 +92,10 @@ export class TransactionService {
   retirer(compteId: number, montant: number): Observable<{ success: boolean; message: string }> {
     const body: DeposerRetirerRequest = { montant };
     return this.http.post(`${this.apiUrl}/${compteId}/retirer`, body).pipe(
-      tap(() => this.refreshTransactions()),
+      tap(() => {
+        this.compteService.refreshComptes();
+        this.refreshTransactions();
+      }),
       map(() => ({ success: true, message: 'Retrait effectué avec succès' })),
       catchError(error => {
         console.error('Erreur lors du retrait:', error);
@@ -102,7 +108,10 @@ export class TransactionService {
   transferer(compteSourceId: number, compteDestId: number, montant: number): Observable<{ success: boolean; message: string }> {
     const body: TransfererRequest = { montant, id: compteDestId };
     return this.http.post(`${this.apiUrl}/${compteSourceId}/transferer`, body).pipe(
-      tap(() => this.refreshTransactions()),
+      tap(() => {
+        this.compteService.refreshComptes();
+        this.refreshTransactions();
+      }),
       map(() => ({ success: true, message: 'Virement effectué avec succès' })),
       catchError(error => {
         console.error('Erreur lors du virement:', error);

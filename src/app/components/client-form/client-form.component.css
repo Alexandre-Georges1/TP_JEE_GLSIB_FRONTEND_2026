@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
+  cursor: default;
   padding: 0.75rem 1rem;
   border: 2px solid var(--border);
   border-radius: 10px;
@@ -173,11 +173,13 @@
 }
 
 .radio-option:hover {
-  border-color: var(--primary);
+  border-color: var(--border);
+  cursor: default;
 }
 
 .radio-option input[type="radio"] {
   display: none;
+  cursor: default;
 }
 
 .radio-custom {
@@ -187,6 +189,7 @@
   border-radius: 50%;
   position: relative;
   transition: all 0.2s ease;
+  cursor: default;
 }
 
 .radio-option input[type="radio"]:checked + .radio-custom {
@@ -207,6 +210,13 @@
 
 .radio-option input[type="radio"]:checked ~ i {
   color: var(--primary);
+}
+
+/* Empêche le curseur pointer sur l'icône et le texte */
+.radio-option i,
+.radio-option span {
+  cursor: default;
+  pointer-events: none;
 }
 
 .form-actions {

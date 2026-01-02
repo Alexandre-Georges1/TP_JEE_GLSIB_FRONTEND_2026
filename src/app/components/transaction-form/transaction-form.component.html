@@ -4,7 +4,7 @@
          [class.depot]="transactionForm.get('type')?.value === 'DEPOT'"
          [class.retrait]="transactionForm.get('type')?.value === 'RETRAIT'"
          [class.virement]="transactionForm.get('type')?.value === 'VIREMENT'">
-      <a routerLink="/transactions" class="back-link">
+      <a routerLink="/dashboard/transactions" class="back-link">
         <i class="fas fa-arrow-left"></i>
       </a>
       <div class="header-text">
@@ -57,7 +57,7 @@
         <div>
           <strong>Aucun compte disponible</strong>
           <p>Vous devez d'abord créer un compte bancaire pour effectuer des transactions.</p>
-          <a routerLink="/comptes/new" class="btn btn-primary btn-sm">
+          <a routerLink="/dashboard/comptes/new" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Créer un compte
           </a>
         </div>
@@ -174,9 +174,9 @@
                 id="montant" 
                 formControlName="montant"
                 [class.invalid]="isFieldInvalid('montant')"
-                placeholder="0.00"
-                min="0.01"
-                step="0.01"
+                placeholder="0"
+                min="°0"
+                step="1"
               >
             </div>
             @if (isFieldInvalid('montant')) {
@@ -186,7 +186,7 @@
         </div>
 
         <div class="form-actions">
-          <a routerLink="/transactions" class="btn btn-secondary">
+          <a routerLink="/dashboard/transactions" class="btn btn-secondary">
             Annuler
           </a>
           <button type="submit" class="btn" 

@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="form-card">
     <div class="form-header">
-      <a routerLink="/clients" class="back-link">
+      <a routerLink="/dashboard/clients" class="back-link">
         <i class="fas fa-arrow-left"></i>
       </a>
       <div class="header-text">
@@ -71,16 +71,16 @@
           <div class="form-group">
             <label>Sexe *</label>
             <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" formControlName="sexe" value="M">
+              <div class="radio-option" (click)="clientForm.get('sexe')?.setValue('M')">
+                <input type="radio" formControlName="sexe" value="M" aria-label="Masculin">
                 <span class="radio-custom"></span>
-                <i class="fas fa-mars"></i> Masculin
-              </label>
-              <label class="radio-option">
-                <input type="radio" formControlName="sexe" value="F">
+                <i class="fas fa-mars"></i> <span>Masculin</span>
+              </div>
+              <div class="radio-option" (click)="clientForm.get('sexe')?.setValue('F')">
+                <input type="radio" formControlName="sexe" value="F" aria-label="Féminin">
                 <span class="radio-custom"></span>
-                <i class="fas fa-venus"></i> Féminin
-              </label>
+                <i class="fas fa-venus"></i> <span>Féminin</span>
+              </div>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@
       </div>
 
       <div class="form-actions">
-        <a routerLink="/clients" class="btn btn-secondary">
+        <a routerLink="/dashboard/clients" class="btn btn-secondary">
           Annuler
         </a>
         <button type="submit" class="btn btn-primary" [disabled]="loading">
