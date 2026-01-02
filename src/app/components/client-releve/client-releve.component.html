@@ -1,0 +1,180 @@
+<div class="client-page">
+  <!-- Header -->
+  <header class="client-header">
+    <div class="header-left">
+      <a routerLink="/client" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <img src="logo.png" alt="EgaBank" class="header-logo">
+      <div class="header-title">
+        <h1>Relevé Bancaire</h1>
+        <span>Consultez et téléchargez vos relevés</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Déconnexion" aria-label="Déconnexion">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="client-content">
+    <!-- Formulaire de sélection -->
+    <section class="form-section">
+      <h2><i class="fas fa-file-invoice"></i> Générer un relevé</h2>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="compteSelect">Compte</label>
+          <select 
+            id="compteSelect" 
+            [ngModel]="selectedCompteId()" 
+            (ngModelChange)="selectedCompteId.set($event)"
+            name="compteSelect">
+            <option [ngValue]="null">-- Choisir un compte --</option>
+            @for (compte of comptes(); track compte.id) {
+              <option [ngValue]="compte.id">
+                {{ compte.numeroCompte }} - {{ compte.typeCompte }} ({{ formatMontant(compte.solde) }} FCFA)
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="dateDebut">Date de début</label>
+          <input 
+            type="date" 
+            id="dateDebut" 
+            [ngModel]="dateDebut()" 
+            (ngModelChange)="dateDebut.set($event)"
+            name="dateDebut">
+        </div>
+
+        <div class="form-group">
+          <label for="dateFin">Date de fin</label>
+          <input 
+            type="date" 
+            id="dateFin" 
+            [ngModel]="dateFin()" 
+            (ngModelChange)="dateFin.set($event)"
+            name="dateFin">
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="afficherReleve()" [disabled]="loading()">
+          @if (loading()) {
+            <i class="fas fa-spinner fa-spin"></i> Chargement...
+          } @else {
+            <i class="fas fa-search"></i> Afficher le relevé
+          }
+        </button>
+        <button class="btn btn-danger" (click)="telechargerPDF()" [disabled]="loading()">
+          <i class="fas fa-file-pdf"></i> Télécharger PDF
+        </button>
+        @if (releveData()) {
+          <button class="btn btn-secondary" (click)="imprimerReleve()">
+            <i class="fas fa-print"></i> Imprimer
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Message -->
+    @if (message()) {
+      <div class="message" [class.success]="message()?.type === 'success'" [class.error]="message()?.type === 'error'">
+        <i class="fas" [class.fa-check-circle]="message()?.type === 'success'" [class.fa-exclamation-circle]="message()?.type === 'error'"></i>
+        {{ message()?.text }}
+      </div>
+    }
+
+    <!-- Contenu du relevé (imprimable) -->
+    @if (releveData()) {
+      <div class="releve-content" id="releveContent">
+        <!-- En-tête du relevé pour impression -->
+        <div class="print-header">
+          <img src="logo.png" alt="EgaBank" class="print-logo">
+          <p>EgaBank - Votre partenaire financier</p>
+        </div>
+
+        <!-- Résumé -->
+        <section class="summary-card">
+          <h3><i class="fas fa-info-circle"></i> Relevé de Compte</h3>
+          
+          <div class="summary-info">
+            <p><strong>Compte :</strong> {{ releveData()?.compte?.numeroCompte }}</p>
+            <p><strong>Titulaire :</strong> {{ releveData()?.compte?.client?.nom }} {{ releveData()?.compte?.client?.prenom }}</p>
+            <p><strong>Période :</strong> {{ formatDate(releveData()?.dateDebut || '') }} au {{ formatDate(releveData()?.dateFin || '') }}</p>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <label>Nombre de transactions</label>
+              <div class="value">{{ releveData()?.nombreTransactions }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Solde de début</label>
+              <div class="value">{{ formatMontant(releveData()?.soldeDebut || 0) }} FCFA</div>
+            </div>
+            <div class="summary-item credit">
+              <label>Total crédits</label>
+              <div class="value">+{{ formatMontant(releveData()?.totalCredits || 0) }} FCFA</div>
+            </div>
+            <div class="summary-item debit">
+              <label>Total débits</label>
+              <div class="value">-{{ formatMontant(releveData()?.totalDebits || 0) }} FCFA</div>
+            </div>
+            <div class="summary-item highlight">
+              <label>Solde de fin</label>
+              <div class="value">{{ formatMontant(releveData()?.soldeFin || 0) }} FCFA</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Transactions -->
+        <section class="transactions-section">
+          <h3><i class="fas fa-list no-print"></i> Détail des transactions</h3>
+          
+          @if (releveData()?.transactions?.length === 0) {
+            <div class="empty-state">
+              <i class="fas fa-receipt"></i>
+              <p>Aucune transaction pour cette période</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="transactions-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Montant</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (transaction of releveData()?.transactions; track transaction.id) {
+                    <tr>
+                      <td>{{ formatDateTime(transaction.dateTransaction) }}</td>
+                      <td>
+                        <span class="type-badge" [class]="'type-' + transaction.type">
+                          {{ getTypeLabel(transaction.type) }}
+                        </span>
+                      </td>
+                      <td [class]="isCredit(transaction.type) ? 'credit' : 'debit'">
+                        {{ isCredit(transaction.type) ? '+' : '-' }}{{ formatMontant(transaction.montant) }} FCFA
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <!-- Pied de page pour impression -->
+        <div class="print-footer">
+          <p>Document généré le {{ formatDateTime(today) }}</p>
+          <p>EgaBank - Ce document est un relevé de compte officiel</p>
+        </div>
+      </div>
+    }
+  </main>
+</div>

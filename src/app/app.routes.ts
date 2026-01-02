@@ -33,6 +33,10 @@ export const routes: Routes = [
       {
         path: 'historique',
         loadComponent: () => import('./components/client-historique/client-historique.component').then(m => m.ClientHistoriqueComponent)
+      },
+      {
+        path: 'releve',
+        loadComponent: () => import('./components/client-releve/client-releve.component').then(m => m.ClientReleveComponent)
       }
     ]
   },

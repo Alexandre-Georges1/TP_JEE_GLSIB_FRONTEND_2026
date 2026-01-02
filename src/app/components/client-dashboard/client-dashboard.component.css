@@ -220,6 +220,11 @@
   color: #64748b;
 }
 
+.action-card.releve .action-icon {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
 /* Recent Transactions */
 .recent-transactions {
   background: white;
