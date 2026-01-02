@@ -33,7 +33,7 @@
       <div class="stat-content">
         <span class="stat-value">{{ stats.totalDepots }}</span>
         <span class="stat-label">Dépôts</span>
-        <span class="stat-amount">+{{ stats.montantDepots | number:'1.2-2' }} €</span>
+        <span class="stat-amount">+{{ stats.montantDepots | number:'1.2-2' }} FCFA</span>
       </div>
     </div>
     <div class="stat-card retrait">
@@ -43,7 +43,7 @@
       <div class="stat-content">
         <span class="stat-value">{{ stats.totalRetraits }}</span>
         <span class="stat-label">Retraits</span>
-        <span class="stat-amount">-{{ stats.montantRetraits | number:'1.2-2' }} €</span>
+        <span class="stat-amount">-{{ stats.montantRetraits | number:'1.2-2' }} FCFA</span>
       </div>
     </div>
     <div class="stat-card virement">
@@ -53,7 +53,7 @@
       <div class="stat-content">
         <span class="stat-value">{{ stats.totalVirements }}</span>
         <span class="stat-label">Virements</span>
-        <span class="stat-amount">{{ stats.montantVirements | number:'1.2-2' }} €</span>
+        <span class="stat-amount">{{ stats.montantVirements | number:'1.2-2' }} FCFA</span>
       </div>
     </div>
   </div>
@@ -115,7 +115,7 @@
                 <span class="txn-type">{{ txn.type }}</span>
                 <span class="txn-id">#{{ txn.id }}</span>
               </div>
-              <p class="txn-description">Solde: {{ txn.montantAvant | number:'1.2-2' }} € → {{ txn.montantApres | number:'1.2-2' }} €</p>
+              <p class="txn-description">Solde: {{ txn.montantAvant | number:'1.2-2' }} FCFA → {{ txn.montantApres | number:'1.2-2' }} FCFA</p>
               <div class="txn-meta">
                 <span class="txn-date">
                   <i class="fas fa-clock"></i>
@@ -130,10 +130,10 @@
             
             <div class="txn-amounts">
               <span class="txn-montant" [class.credit]="txn.type === 'DEPOT'" [class.debit]="txn.type !== 'DEPOT'">
-                {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €
+                {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} FCFA
               </span>
               <span class="txn-solde">
-                Solde: {{ txn.montantApres | number:'1.2-2' }} €
+                Solde: {{ txn.montantApres | number:'1.2-2' }} FCFA
               </span>
             </div>
           </div>

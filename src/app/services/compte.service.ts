@@ -49,12 +49,7 @@ export class CompteService {
     localStorage.setItem(this.storageKey, JSON.stringify(this.comptes$.value));
   }
 
-  private generateNumeroCompte(type: string): string {
-    const prefix = type === 'EPARGNE' ? 'EP' : 'CC';
-    const numero = Date.now().toString().slice(-8);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `${prefix}-${numero}-${random}`;
-  }
+ 
 
   getComptes(): Observable<Compte[]> {
     return combineLatest([this.comptes$, this.clientService.getClients()]).pipe(
@@ -96,7 +91,6 @@ export class CompteService {
 
   createCompte(data: CompteFormData): Observable<Compte> {
     const compteData = {
-      numeroCompte: this.generateNumeroCompte(data.typeCompte),
       dateCreation: new Date(),
       typeCompte: data.typeCompte,
       solde: data.solde,

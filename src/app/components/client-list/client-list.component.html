@@ -94,7 +94,7 @@
                   </div>
                   <div class="account-number">{{ compte.numeroCompte }}</div>
                   <div class="account-balance" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
-                    {{ compte.solde | number:'1.2-2' }} €
+                    {{ compte.solde | number:'1.2-2' }} FCFA
                   </div>
                 </div>
               }
@@ -102,7 +102,7 @@
             <div class="total-balance">
               <span>Solde Total:</span>
               <strong [class.positive]="getTotalSolde(client.id) >= 0" [class.negative]="getTotalSolde(client.id) < 0">
-                {{ getTotalSolde(client.id) | number:'1.2-2' }} €
+                {{ getTotalSolde(client.id) | number:'1.2-2' }} FCFA
               </strong>
             </div>
           } @else {

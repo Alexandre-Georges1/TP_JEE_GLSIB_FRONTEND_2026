@@ -20,10 +20,10 @@ export class ClientFormComponent implements OnInit {
   submitError = '';
 
   nationalities = [
-    'Française', 'Gabonaise', 'Camerounaise', 'Sénégalaise', 'Ivoirienne',
+    'Française', 'Togolaise', 'Camerounaise', 'Sénégalaise', 'Ivoirienne',
     'Congolaise', 'Marocaine', 'Algérienne', 'Tunisienne', 'Belge',
-    'Suisse', 'Canadienne', 'Américaine', 'Britannique', 'Allemande',
-    'Espagnole', 'Italienne', 'Portugaise', 'Autre'
+    'Nigérienne', 'Canadienne', 'Américaine', 'Britannique', 'Béninoise',
+    'Espagnole', 'Italienne', 'Américaine', 'Autre'
   ];
 
   constructor(

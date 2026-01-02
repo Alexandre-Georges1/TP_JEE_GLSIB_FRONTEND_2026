@@ -108,7 +108,7 @@
               <option [ngValue]="null">Choisissez un compte</option>
               @for (compte of comptes; track compte.id) {
                 <option [ngValue]="compte.id">
-                  {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }} ({{ compte.solde | number:'1.2-2' }} €)
+                  {{ compte.numeroCompte }} - {{ compte.clientPrenom }} {{ compte.clientNom }} ({{ compte.solde | number:'1.2-2' }} FCFA)
                 </option>
               }
             </select>
@@ -128,7 +128,7 @@
                   <span>{{ selectedCompte.clientPrenom }} {{ selectedCompte.clientNom }}</span>
                 </div>
                 <div class="preview-balance" [class.positive]="selectedCompte.solde >= 0" [class.negative]="selectedCompte.solde < 0">
-                  {{ selectedCompte.solde | number:'1.2-2' }} €
+                  {{ selectedCompte.solde | number:'1.2-2' }} FCFA
                 </div>
               </div>
             </div>
@@ -168,7 +168,7 @@
           <div class="form-group">
             <label for="montant">Montant *</label>
             <div class="amount-input">
-              <span class="currency">€</span>
+              <span class="currency">FCFA</span>
               <input 
                 type="number" 
                 id="montant" 

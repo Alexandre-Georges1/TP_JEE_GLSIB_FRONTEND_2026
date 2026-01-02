@@ -53,7 +53,7 @@
         <i class="fas fa-coins"></i>
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.soldeTotal | number:'1.2-2' }} €</span>
+        <span class="stat-value">{{ stats.soldeTotal | number:'1.2-2' }} FCFA</span>
         <span class="stat-label">Solde Total</span>
       </div>
     </div>
@@ -92,7 +92,7 @@
                   <span class="txn-date">{{ txn.dateTransaction | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 <div class="txn-amount" [class.credit]="txn.type === 'DEPOT'" [class.debit]="txn.type !== 'DEPOT'">
-                  {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €
+                  {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} FCFA
                 </div>
               </div>
             }

@@ -31,7 +31,7 @@
       <div class="stat-content">
         <span class="stat-value">{{ stats.totalEpargne }}</span>
         <span class="stat-label">Comptes Épargne</span>
-        <span class="stat-amount">{{ stats.soldeTotalEpargne | number:'1.2-2' }} €</span>
+        <span class="stat-amount">{{ stats.soldeTotalEpargne | number:'1.2-2' }} FCFA</span>
       </div>
     </div>
     <div class="stat-card courant">
@@ -41,7 +41,7 @@
       <div class="stat-content">
         <span class="stat-value">{{ stats.totalCourant }}</span>
         <span class="stat-label">Comptes Courants</span>
-        <span class="stat-amount">{{ stats.soldeTotalCourant | number:'1.2-2' }} €</span>
+        <span class="stat-amount">{{ stats.soldeTotalCourant | number:'1.2-2' }} FCFA</span>
       </div>
     </div>
     <div class="stat-card solde">
@@ -49,7 +49,7 @@
         <i class="fas fa-coins"></i>
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.soldeTotal | number:'1.2-2' }} €</span>
+        <span class="stat-value">{{ stats.soldeTotal | number:'1.2-2' }} FCFA</span>
         <span class="stat-label">Solde Total</span>
       </div>
     </div>
@@ -131,7 +131,7 @@
               </td>
               <td>
                 <span class="solde" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
-                  {{ compte.solde | number:'1.2-2' }} €
+                  {{ compte.solde | number:'1.2-2' }} FCFA
                 </span>
               </td>
               <td>
@@ -188,7 +188,7 @@
       <div class="modal-body">
         <p>Êtes-vous sûr de vouloir supprimer le compte <strong>{{ compteToDelete.numeroCompte }}</strong> ?</p>
         <p class="warning">
-          Solde actuel: <strong>{{ compteToDelete.solde | number:'1.2-2' }} €</strong><br>
+          Solde actuel: <strong>{{ compteToDelete.solde | number:'1.2-2' }} FCFA</strong><br>
           Toutes les transactions associées seront également supprimées.
         </p>
       </div>

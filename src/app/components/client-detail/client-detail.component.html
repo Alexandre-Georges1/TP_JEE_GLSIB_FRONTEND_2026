@@ -84,7 +84,7 @@
           <i class="fas fa-coins"></i>
           <div class="summary-content">
             <span class="summary-value" [class.positive]="getTotalSolde() >= 0" [class.negative]="getTotalSolde() < 0">
-              {{ getTotalSolde() | number:'1.2-2' }} €
+              {{ getTotalSolde() | number:'1.2-2' }} FCFA
             </span>
             <span class="summary-label">Solde Total</span>
           </div>
@@ -115,7 +115,7 @@
                 <span class="tab-type">{{ compte.typeCompte }}</span>
                 <span class="tab-number">{{ compte.numeroCompte }}</span>
                 <span class="tab-balance" [class.positive]="compte.solde >= 0" [class.negative]="compte.solde < 0">
-                  {{ compte.solde | number:'1.2-2' }} €
+                  {{ compte.solde | number:'1.2-2' }} FCFA
                 </span>
               </button>
             }
@@ -129,7 +129,7 @@
                   <span class="account-number">{{ selectedCompte.numeroCompte }}</span>
                 </div>
                 <div class="account-balance" [class.positive]="selectedCompte.solde >= 0" [class.negative]="selectedCompte.solde < 0">
-                  {{ selectedCompte.solde | number:'1.2-2' }} €
+                  {{ selectedCompte.solde | number:'1.2-2' }} FCFA
                 </div>
               </div>
 
@@ -166,7 +166,7 @@
                           <span class="txn-date">{{ txn.dateTransaction | date:'dd/MM/yyyy HH:mm' }}</span>
                         </div>
                         <div class="txn-amount" [class.credit]="txn.type === 'DEPOT'" [class.debit]="txn.type !== 'DEPOT'">
-                          {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} €
+                          {{ txn.type === 'DEPOT' ? '+' : '-' }}{{ txn.montant | number:'1.2-2' }} FCFA
                         </div>
                       </div>
                     }
@@ -224,7 +224,7 @@
         </div>
         <div class="modal-body">
           <p>Êtes-vous sûr de vouloir supprimer le compte <strong>{{ compteToDelete.numeroCompte }}</strong> ?</p>
-          <p class="warning">Le solde actuel est de {{ compteToDelete.solde | number:'1.2-2' }} €. Toutes les transactions seront également supprimées.</p>
+          <p class="warning">Le solde actuel est de {{ compteToDelete.solde | number:'1.2-2' }} FCFA. Toutes les transactions seront également supprimées.</p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
