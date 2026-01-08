@@ -22,6 +22,7 @@ export class ClientTransactionComponent implements OnInit {
   
   montant = signal<number>(0);
   compteDestination = signal<string>('');
+  destinataireInfo = signal<Compte | null>(null);
   
   isLoading = signal(false);
   errorMessage = signal('');
@@ -62,6 +63,17 @@ export class ClientTransactionComponent implements OnInit {
     this.transactionType.set(type);
     this.errorMessage.set('');
     this.successMessage.set('');
+  }
+
+  onCompteDestinationChange(numeroCompte: string): void {
+    this.compteDestination.set(numeroCompte);
+    
+    if (numeroCompte) {
+      const compte = this.otherComptes.find(c => c.numeroCompte === numeroCompte);
+      this.destinataireInfo.set(compte || null);
+    } else {
+      this.destinataireInfo.set(null);
+    }
   }
 
   // ...existing code...

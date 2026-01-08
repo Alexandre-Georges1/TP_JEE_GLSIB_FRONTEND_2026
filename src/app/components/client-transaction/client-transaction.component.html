@@ -77,19 +77,26 @@
               <i class="fas fa-user"></i>
               Compte destinataire
             </label>
-            <select 
+            <input 
+              type="text" 
               id="destination" 
               [ngModel]="compteDestination()" 
-              (ngModelChange)="compteDestination.set($event)"
+              (ngModelChange)="onCompteDestinationChange($event)"
               name="destination"
+              placeholder="Entrer le numéro de compte"
               required>
-              <option value="">Sélectionner un compte</option>
-              @for (c of otherComptes; track c.numeroCompte) {
-                <option [value]="c.numeroCompte">
-                  {{ c.numeroCompte }} - {{ c.clientPrenom }} {{ c.clientNom }}
-                </option>
-              }
-            </select>
+            @if (destinataireInfo()) {
+              <div class="destinataire-info">
+                <i class="fas fa-check-circle"></i>
+                {{ destinataireInfo()!.clientPrenom }} {{ destinataireInfo()!.clientNom }}
+              </div>
+            }
+            @if (compteDestination() && !destinataireInfo()) {
+              <div class="destinataire-error">
+                <i class="fas fa-exclamation-circle"></i>
+                Compte introuvable
+              </div>
+            }
           </div>
         }
 
